@@ -1,28 +1,49 @@
 @import "tailwindcss";
 
-/* ── Rus Maktabi Design System ── */
+/*
+  Rus Maktabi LMS — Design System
+  Style: Trust & Authority (ui-ux-pro-max)
+  Focus: Parents purchasing children's education
+  Pattern: Hero + Testimonials + CTA
+*/
 :root {
-  --background: #f9fafb;
-  --foreground: #111827;
+  /* Base */
+  --background: #F0FDFA;
+  --foreground: #134E4A;
 
-  /* Brand: синий — доверие, образование */
-  --brand-50:  #eff6ff;
-  --brand-100: #dbeafe;
-  --brand-200: #bfdbfe;
-  --brand-400: #60a5fa;
-  --brand-500: #3b82f6;
-  --brand-600: #2563eb;
-  --brand-700: #1d4ed8;
-  --brand-800: #1e40af;
+  /* Brand: Trust Teal — доверие, рост, образование */
+  --brand-50:  #f0fdfa;
+  --brand-100: #ccfbf1;
+  --brand-200: #99f6e4;
+  --brand-400: #2dd4bf;
+  --brand-500: #14b8a6;
+  --brand-600: #0d9488;
+  --brand-700: #0f766e;
+  --brand-800: #115e59;
 
-  /* Accent: зелёный — рост, прогресс */
-  --accent-500: #10b981;
-  --accent-600: #059669;
+  /* CTA: Professional Blue — призыв к действию */
+  --cta-500: #0ea5e9;
+  --cta-600: #0369a1;
+  --cta-700: #075985;
+
+  /* Accent: для статусов, прогресса */
+  --accent-500: #14b8a6;
+  --accent-600: #0d9488;
+
+  /* Neutrals */
+  --gray-50:  #f8fafc;
+  --gray-100: #f1f5f9;
+  --gray-200: #e2e8f0;
+  --gray-400: #94a3b8;
+  --gray-500: #64748b;
+  --gray-600: #475569;
+  --gray-900: #0f172a;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+
   --color-brand-50:  var(--brand-50);
   --color-brand-100: var(--brand-100);
   --color-brand-200: var(--brand-200);
@@ -31,12 +52,37 @@
   --color-brand-600: var(--brand-600);
   --color-brand-700: var(--brand-700);
   --color-brand-800: var(--brand-800);
+
+  --color-cta-500: var(--cta-500);
+  --color-cta-600: var(--cta-600);
+  --color-cta-700: var(--cta-700);
+
   --color-accent-500: var(--accent-500);
   --color-accent-600: var(--accent-600);
-  --font-sans: var(--font-inter);
+
+  --font-sans: var(--font-lexend);
+  --font-body: var(--font-source-sans);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
+  font-family: var(--font-body), var(--font-sans), sans-serif;
+  line-height: 1.6;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-lexend), var(--font-sans), sans-serif;
+  line-height: 1.25;
+}
+
+/* Микро-анимации (Trust & Authority стиль) */
+@media (prefers-reduced-motion: no-preference) {
+  .animate-stat {
+    animation: stat-reveal 0.6s ease-out both;
+  }
+  @keyframes stat-reveal {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
 }
