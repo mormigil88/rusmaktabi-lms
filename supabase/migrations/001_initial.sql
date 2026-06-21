@@ -126,7 +126,6 @@ create policy "lessons_select_enrolled" on public.lessons for select
     is_free = true
     or exists (
       select 1 from public.enrollments e
-      join public.modules m on m.id = lesson_id  -- module_id
       where e.user_id = auth.uid()
         and e.course_id = (select course_id from public.modules where id = module_id)
         and e.status = 'active'
