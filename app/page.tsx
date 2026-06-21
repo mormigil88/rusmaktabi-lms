@@ -1,65 +1,97 @@
-import Image from "next/image";
+import Link from 'next/link'
+import Navbar from '@/components/navbar'
 
-export default function Home() {
+export default function HomePage() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
+    <>
+      <Navbar />
+
+      {/* Hero */}
+      <section className="bg-white">
+        <div className="max-w-4xl mx-auto px-4 py-20 text-center">
+          <span className="inline-block bg-brand-50 text-brand-700 text-xs font-semibold px-3 py-1 rounded-full mb-6 uppercase tracking-wide">
+            #1 O'zbek bolalari uchun rus tili
+          </span>
+          <h1 className="text-4xl sm:text-5xl font-extrabold text-gray-900 leading-tight mb-6">
+            Bolangiz 4 haftada<br />
+            <span className="text-brand-600">Rossiya maktabiga tayyor</span>
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+          <p className="text-lg text-gray-500 max-w-xl mx-auto mb-10">
+            Online darslar, tajribali o'qituvchilar va to'liq maktab dasturi.
+            Bepul diagnostika — hoziroq boshlang.
           </p>
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <Link
+              href="/register"
+              className="bg-brand-600 hover:bg-brand-700 text-white font-semibold px-8 py-3.5 rounded-xl transition text-base"
+            >
+              Bepul diagnostika →
+            </Link>
+            <Link
+              href="/courses"
+              className="bg-gray-50 hover:bg-gray-100 text-gray-700 font-semibold px-8 py-3.5 rounded-xl transition text-base"
+            >
+              Kurslarni ko'rish
+            </Link>
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+      </section>
+
+      {/* Stats */}
+      <section className="bg-brand-600">
+        <div className="max-w-4xl mx-auto px-4 py-10 grid grid-cols-3 gap-6 text-white text-center">
+          {[
+            { value: '4 hafta', label: "O'rtacha o'rganish vaqti" },
+            { value: '97%', label: 'Maktabga qabul' },
+            { value: '$200', label: "To'liq kurs narxi" },
+          ].map(stat => (
+            <div key={stat.label}>
+              <div className="text-3xl font-extrabold">{stat.value}</div>
+              <div className="text-brand-200 text-sm mt-1">{stat.label}</div>
+            </div>
+          ))}
         </div>
-      </main>
-    </div>
-  );
+      </section>
+
+      {/* How it works */}
+      <section className="bg-white">
+        <div className="max-w-4xl mx-auto px-4 py-16">
+          <h2 className="text-2xl font-bold text-center text-gray-900 mb-10">Qanday ishlaydi?</h2>
+          <div className="grid sm:grid-cols-3 gap-8">
+            {[
+              { step: '1', title: 'Bepul diagnostika', desc: 'Zoom orqali 20 daqiqa — bolangiz darajasini aniqlaymiz' },
+              { step: '2', title: 'Individual dastur', desc: "Bolangiz uchun maxsus o'quv rejasi tuziladi" },
+              { step: '3', title: 'Natija kafolati', desc: '4 haftada maktab talablariga javob beradi' },
+            ].map(item => (
+              <div key={item.step} className="text-center">
+                <div className="w-12 h-12 bg-brand-50 text-brand-600 font-bold text-xl rounded-full flex items-center justify-center mx-auto mb-4">
+                  {item.step}
+                </div>
+                <h3 className="font-semibold text-gray-900 mb-2">{item.title}</h3>
+                <p className="text-sm text-gray-500">{item.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CTA */}
+      <section className="bg-gray-50 border-t border-gray-100">
+        <div className="max-w-2xl mx-auto px-4 py-16 text-center">
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">Bepul diagnostikaga yoziling</h2>
+          <p className="text-gray-500 mb-8">Hozir joylar cheklangan. 20 daqiqa Zoom — hech qanday majburiyat yo'q.</p>
+          <Link
+            href="/register"
+            className="inline-block bg-brand-600 hover:bg-brand-700 text-white font-semibold px-10 py-3.5 rounded-xl transition"
+          >
+            Hozir yozilish →
+          </Link>
+        </div>
+      </section>
+
+      <footer className="bg-white border-t border-gray-100 py-6 text-center text-sm text-gray-400">
+        © 2026 Rus Maktabi. Barcha huquqlar himoyalangan.
+      </footer>
+    </>
+  )
 }
