@@ -1,7 +1,7 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
-const STUDENT_ROUTES = ['/dashboard', '/course/']
+const STUDENT_ROUTES = ['/dashboard']
 const TEACHER_ROUTES = ['/teacher']
 const ADMIN_ROUTES = ['/admin']
 
