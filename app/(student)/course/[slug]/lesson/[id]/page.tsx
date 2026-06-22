@@ -2,12 +2,28 @@ import { notFound, redirect } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import CompleteButton from './complete-button'
+import type { Metadata } from 'next'
 import type { Database } from '@/lib/supabase/types'
 
 type Lesson = Database['public']['Tables']['lessons']['Row']
 type ModuleRow = Database['public']['Tables']['modules']['Row']
 type LessonMini = Pick<Lesson, 'id' | 'title' | 'order' | 'is_free' | 'duration_min'>
 type ModuleWithLessons = ModuleRow & { lessons: LessonMini[] }
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string; id: string }> }): Promise<Metadata> {
+  const { slug, id } = await params
+  const supabase = await createClient()
+  const { data: lesson } = await supabase
+    .from('lessons').select('title').eq('id', id).single() as { data: { title: string } | null }
+
+  return {
+    title: lesson?.title ?? 'Dars',
+    openGraph: {
+      title: lesson ? `${lesson.title} | Rus Maktabi` : 'Rus Maktabi',
+      type: 'website',
+    },
+  }
+}
 
 function renderMarkdown(md: string) {
   return md.split('\n').map((line, i) => {

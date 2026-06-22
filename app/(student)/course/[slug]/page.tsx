@@ -1,12 +1,32 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
+import type { Metadata } from 'next'
 import type { Database } from '@/lib/supabase/types'
 
 type Course = Database['public']['Tables']['courses']['Row']
 type LessonPreview = Pick<Database['public']['Tables']['lessons']['Row'], 'id' | 'title' | 'duration_min' | 'order' | 'is_free' | 'video_url'>
 type ModuleWithLessons = Database['public']['Tables']['modules']['Row'] & { lessons: LessonPreview[] }
 type Enrollment = Pick<Database['public']['Tables']['enrollments']['Row'], 'id' | 'status'>
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params
+  const supabase = await createClient()
+  const { data: course } = await supabase
+    .from('courses').select('title, description').eq('slug', slug).single() as { data: Pick<Course, 'title' | 'description'> | null }
+
+  if (!course) return { title: 'Kurs topilmadi' }
+
+  return {
+    title: course.title,
+    description: course.description ?? "Bolangizni Rossiya maktabiga 4 haftada tayyorlaymiz.",
+    openGraph: {
+      title: `${course.title} | Rus Maktabi`,
+      description: course.description ?? "Bolangizni Rossiya maktabiga 4 haftada tayyorlaymiz.",
+      type: 'website',
+    },
+  }
+}
 
 export default async function CoursePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
@@ -50,7 +70,27 @@ export default async function CoursePage({ params }: { params: Promise<{ slug: s
     .find(l => l.is_free)
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-10">
+    <div className="max-w-5xl mx-auto px-4 py-10 pb-28 sm:pb-10">
+      {/* Sticky mobile CTA — appears only on small screens */}
+      {!isEnrolled && (
+        <div className="fixed bottom-0 left-0 right-0 sm:hidden bg-white border-t border-brand-100 px-4 py-3 flex items-center justify-between z-40 shadow-lg">
+          <div>
+            <div className="font-bold text-foreground text-sm">
+              {course.price_uzs > 0 ? `${(course.price_uzs / 1000).toFixed(0)}k so'm` : 'Bepul'}
+            </div>
+            {course.price_rub > 0 && (
+              <div className="text-xs text-brand-600/50">{course.price_rub.toLocaleString()} ₽</div>
+            )}
+          </div>
+          <Link
+            href={user ? `/course/${slug}/checkout` : '/register'}
+            className="bg-cta-600 hover:bg-cta-700 text-white font-semibold px-5 py-2.5 rounded-xl transition-colors duration-200 cursor-pointer text-sm"
+          >
+            {user ? 'Sotib olish →' : "Ro'yxat →"}
+          </Link>
+        </div>
+      )}
+
       <div className="grid sm:grid-cols-3 gap-8">
 
         {/* Main content */}
