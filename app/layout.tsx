@@ -17,18 +17,18 @@ const sourceSans = Source_Sans_3({
 
 export const metadata: Metadata = {
   title: {
-    default: "Rus Maktabi — O'zbek bolalari uchun rus tili",
-    template: "%s | Rus Maktabi",
+    default: "Bilimyo — O'zbek bolalari uchun rus tili",
+    template: "%s | Bilimyo",
   },
   description: "Bolangizni 4 haftada Rossiya maktabiga tayyorlaymiz. Bepul diagnostika — 20 daqiqa Zoom. 97% maktabga qabul kafolati.",
   keywords: ["rus tili", "maktab", "o'zbek bolalar", "Rossiya maktabi", "rus tili kursi"],
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL ?? "https://rusmaktabi.com"),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL ?? "https://bilimyo.com"),
   openGraph: {
-    title: "Rus Maktabi — Bolangizni Rossiya maktabiga 4 haftada tayyorlaymiz",
+    title: "Bilimyo — Bolangizni Rossiya maktabiga 4 haftada tayyorlaymiz",
     description: "Bepul diagnostika — 20 daqiqa Zoom. 97% maktabga qabul kafolati. 200+ muvaffaqiyatli o'quvchi.",
     locale: "uz_UZ",
     type: "website",
-    siteName: "Rus Maktabi",
+    siteName: "Bilimyo",
   },
   robots: {
     index: true,

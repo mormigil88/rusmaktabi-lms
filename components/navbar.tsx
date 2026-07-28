@@ -9,7 +9,7 @@ export default async function Navbar() {
     <header className="bg-white border-b border-brand-100 sticky top-0 z-50">
       <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between">
         <Link href="/" className="font-bold text-brand-700 text-lg tracking-tight flex-shrink-0">
-          Rus Maktabi
+          Bilimyo
         </Link>
 
         <nav className="flex items-center gap-2 sm:gap-5">

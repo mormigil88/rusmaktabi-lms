@@ -21,7 +21,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     title: course.title,
     description: course.description ?? "Bolangizni Rossiya maktabiga 4 haftada tayyorlaymiz.",
     openGraph: {
-      title: `${course.title} | Rus Maktabi`,
+      title: `${course.title} | Bilimyo`,
       description: course.description ?? "Bolangizni Rossiya maktabiga 4 haftada tayyorlaymiz.",
       type: 'website',
     },
