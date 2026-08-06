@@ -2,6 +2,9 @@ export const dynamic = 'force-dynamic'
 
 import Link from 'next/link'
 import Navbar from '@/components/navbar'
+import JsonLd from '@/components/json-ld'
+import { createClient } from '@/lib/supabase/server'
+import { SITE_NAME, SITE_URL } from '@/lib/site'
 
 const testimonials = [
   {
@@ -24,9 +27,30 @@ const testimonials = [
   },
 ]
 
-export default function HomePage() {
+export default async function HomePage() {
+  const supabase = await createClient()
+  const { data: intensiv } = await supabase
+    .from('courses')
+    .select('slug, price_uzs')
+    .eq('slug', 'rus-tili-intensivi')
+    .eq('status', 'published')
+    .maybeSingle() as { data: { slug: string; price_uzs: number } | null }
+
+  const organizationJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'EducationalOrganization',
+    '@id': `${SITE_URL}/#organization`,
+    name: SITE_NAME,
+    url: SITE_URL,
+    description:
+      "O'zbek bolalarini Rossiya maktabiga tayyorlaydigan onlayn maktab — rus tili intensiv kursi va bepul diagnostika.",
+    inLanguage: ['uz', 'ru'],
+    areaServed: ['UZ', 'RU'],
+  }
+
   return (
     <>
+      <JsonLd data={organizationJsonLd} />
       <Navbar />
 
       {/* Hero */}
@@ -124,6 +148,62 @@ export default function HomePage() {
                 <p className="text-sm text-brand-800/70 leading-relaxed">{item.desc}</p>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Offers */}
+      <section className="bg-white border-t border-brand-100">
+        <div className="max-w-5xl mx-auto px-4 py-16">
+          <h2 className="text-2xl font-bold text-center text-foreground mb-2">Qaysi formatga moslashamiz?</h2>
+          <p className="text-center text-brand-800/60 mb-10">Oilangiz vaqtiga qarab tanlang</p>
+          <div className="grid sm:grid-cols-3 gap-6">
+            <div className="bg-brand-50 rounded-2xl p-6 border border-brand-100 flex flex-col">
+              <h3 className="font-semibold text-foreground mb-1">Intensiv — sentyabrgacha</h3>
+              <p className="text-xs text-brand-600/60 mb-4">4 hafta</p>
+              <p className="text-sm text-brand-800/70 leading-relaxed flex-1 mb-5">
+                Sentyabrga qadar to&apos;liq tayyorgarlik — maktab boshlanishidan oldin natija olish uchun.
+              </p>
+              <div className="font-bold text-foreground mb-4">
+                {intensiv ? `${(intensiv.price_uzs / 1000).toFixed(0)}k so'm` : 'narxi aniqlanmoqda'}
+              </div>
+              <Link
+                href={intensiv ? `/course/${intensiv.slug}` : '/courses'}
+                className="block w-full bg-coral-500 hover:bg-coral-600 text-white font-semibold py-2.5 rounded-xl text-center transition-colors duration-200 cursor-pointer text-sm"
+              >
+                Batafsil →
+              </Link>
+            </div>
+
+            <div className="bg-brand-50 rounded-2xl p-6 border border-brand-100 flex flex-col">
+              <h3 className="font-semibold text-foreground mb-1">Ekspress</h3>
+              <p className="text-xs text-brand-600/60 mb-4">2 hafta</p>
+              <p className="text-sm text-brand-800/70 leading-relaxed flex-1 mb-5">
+                Shoshilinch tayyorgarlik kerak bo&apos;lganlar uchun — qisqa muddatda kuchaytirilgan dastur.
+              </p>
+              <div className="font-bold text-brand-700/50 mb-4">narxi aniqlanmoqda</div>
+              <Link
+                href="/register"
+                className="block w-full bg-white hover:bg-brand-100 text-brand-700 font-semibold py-2.5 rounded-xl text-center border border-brand-200 transition-colors duration-200 cursor-pointer text-sm"
+              >
+                Qiziqish bildirish →
+              </Link>
+            </div>
+
+            <div className="bg-brand-50 rounded-2xl p-6 border border-brand-100 flex flex-col">
+              <h3 className="font-semibold text-foreground mb-1">Muntazam darslar</h3>
+              <p className="text-xs text-brand-600/60 mb-4">Doimiy format</p>
+              <p className="text-sm text-brand-800/70 leading-relaxed flex-1 mb-5">
+                Keyinroq ko&apos;chib o&apos;tadigan oilalar uchun — shoshilmasdan, izchil tayyorgarlik.
+              </p>
+              <div className="font-bold text-brand-700/50 mb-4">narxi aniqlanmoqda</div>
+              <Link
+                href="/register"
+                className="block w-full bg-white hover:bg-brand-100 text-brand-700 font-semibold py-2.5 rounded-xl text-center border border-brand-200 transition-colors duration-200 cursor-pointer text-sm"
+              >
+                Qiziqish bildirish →
+              </Link>
+            </div>
           </div>
         </div>
       </section>

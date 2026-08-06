@@ -4,6 +4,10 @@ import { createClient } from '@/lib/supabase/server'
 import { logout } from '@/app/actions/auth'
 import ProfileForm from './profile-form'
 import type { Database } from '@/lib/supabase/types'
+import type { Metadata } from 'next'
+import { NOINDEX } from '@/lib/site'
+
+export const metadata: Metadata = NOINDEX
 
 type UserProfile = Database['public']['Tables']['users']['Row']
 

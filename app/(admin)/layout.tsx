@@ -1,7 +1,11 @@
 import Link from 'next/link'
+import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { logout } from '@/app/actions/auth'
+import { NOINDEX } from '@/lib/site'
+
+export const metadata: Metadata = NOINDEX
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient()

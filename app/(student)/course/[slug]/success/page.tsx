@@ -2,6 +2,10 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import type { Database } from '@/lib/supabase/types'
+import type { Metadata } from 'next'
+import { NOINDEX } from '@/lib/site'
+
+export const metadata: Metadata = NOINDEX
 
 type Course = Database['public']['Tables']['courses']['Row']
 

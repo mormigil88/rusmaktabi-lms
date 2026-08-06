@@ -1,6 +1,8 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
+import JsonLd from '@/components/json-ld'
+import { SITE_NAME, SITE_URL } from '@/lib/site'
 import type { Metadata } from 'next'
 import type { Database } from '@/lib/supabase/types'
 
@@ -43,6 +45,8 @@ export default async function CoursePage({ params }: { params: Promise<{ slug: s
 
   if (!course) notFound()
 
+  const isDigitalProduct = course.product_type === 'digital_product'
+
   const { data: modules } = await supabase
     .from('modules')
     .select('id, title, order, lessons (id, title, duration_min, order, is_free, video_url)')
@@ -69,7 +73,46 @@ export default async function CoursePage({ params }: { params: Promise<{ slug: s
     .flatMap(m => m.lessons ?? [])
     .find(l => l.is_free)
 
+  const offer = {
+    '@type': 'Offer',
+    price: course.price_uzs,
+    priceCurrency: 'UZS',
+    availability: 'https://schema.org/InStock',
+    url: `${SITE_URL}/course/${course.slug}`,
+  }
+
+  // The `courses` table hosts both real courses and standalone digital products
+  // (see migration 006). They are different schema.org types — a checklist PDF
+  // marked up as a Course would be rejected by Google's rich-result validator.
+  const jsonLd = isDigitalProduct
+    ? {
+        '@context': 'https://schema.org',
+        '@type': 'Product',
+        name: course.title,
+        description: course.description ?? undefined,
+        url: `${SITE_URL}/course/${course.slug}`,
+        brand: { '@type': 'Brand', name: SITE_NAME },
+        offers: offer,
+      }
+    : {
+        '@context': 'https://schema.org',
+        '@type': 'Course',
+        name: course.title,
+        description: course.description ?? undefined,
+        url: `${SITE_URL}/course/${course.slug}`,
+        inLanguage: course.language === 'ru' ? 'ru' : 'uz',
+        provider: {
+          '@type': 'EducationalOrganization',
+          '@id': `${SITE_URL}/#organization`,
+          name: SITE_NAME,
+          url: SITE_URL,
+        },
+        offers: offer,
+      }
+
   return (
+    <>
+    <JsonLd data={jsonLd} />
     <div className="max-w-5xl mx-auto px-4 py-10 pb-28 sm:pb-10">
       {/* Sticky mobile CTA — appears only on small screens */}
       {!isEnrolled && (
@@ -84,7 +127,7 @@ export default async function CoursePage({ params }: { params: Promise<{ slug: s
           </div>
           <Link
             href={user ? `/course/${slug}/checkout` : '/register'}
-            className="bg-cta-600 hover:bg-cta-700 text-white font-semibold px-5 py-2.5 rounded-xl transition-colors duration-200 cursor-pointer text-sm"
+            className="bg-coral-500 hover:bg-coral-600 text-white font-semibold px-5 py-2.5 rounded-xl transition-colors duration-200 cursor-pointer text-sm"
           >
             {user ? 'Sotib olish →' : "Ro'yxat →"}
           </Link>
@@ -109,27 +152,51 @@ export default async function CoursePage({ params }: { params: Promise<{ slug: s
             )}
 
             {/* Stats row */}
-            <div className="flex gap-6 mt-6 pt-6 border-t border-brand-100">
-              <div className="text-center">
-                <div className="text-xl font-bold text-brand-700">{(modules ?? []).length}</div>
-                <div className="text-xs text-brand-600/50 mt-0.5">Modul</div>
+            {!isDigitalProduct && (
+              <div className="flex gap-6 mt-6 pt-6 border-t border-brand-100">
+                <div className="text-center">
+                  <div className="text-xl font-bold text-brand-700">{(modules ?? []).length}</div>
+                  <div className="text-xs text-brand-600/50 mt-0.5">Modul</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-xl font-bold text-brand-700">{totalLessons}</div>
+                  <div className="text-xs text-brand-600/50 mt-0.5">Dars</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-xl font-bold text-brand-700">{Math.round(totalMinutes / 60)}+ soat</div>
+                  <div className="text-xs text-brand-600/50 mt-0.5">Umumiy</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-xl font-bold text-brand-700">4 hafta</div>
+                  <div className="text-xs text-brand-600/50 mt-0.5">Davomiyligi</div>
+                </div>
               </div>
-              <div className="text-center">
-                <div className="text-xl font-bold text-brand-700">{totalLessons}</div>
-                <div className="text-xs text-brand-600/50 mt-0.5">Dars</div>
-              </div>
-              <div className="text-center">
-                <div className="text-xl font-bold text-brand-700">{Math.round(totalMinutes / 60)}+ soat</div>
-                <div className="text-xs text-brand-600/50 mt-0.5">Umumiy</div>
-              </div>
-              <div className="text-center">
-                <div className="text-xl font-bold text-brand-700">4 hafta</div>
-                <div className="text-xs text-brand-600/50 mt-0.5">Davomiyligi</div>
-              </div>
-            </div>
+            )}
           </div>
 
+          {/* Digital product: what's included */}
+          {isDigitalProduct && (
+            <div>
+              <h2 className="text-lg font-bold text-foreground mb-4">Nima kiradi?</h2>
+              <div className="bg-white rounded-2xl border border-brand-100 p-5 space-y-3">
+                {[
+                  'Hujjatlar ro\'yxati — bosqichma-bosqich chek-list',
+                  'Tayyor hujjat shablonlari (PDF)',
+                  'Maktabga ariza topshirish bo\'yicha qisqa yo\'riqnoma',
+                ].map(item => (
+                  <div key={item} className="flex items-center gap-3">
+                    <svg className="w-4 h-4 text-brand-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                    <span className="text-sm text-brand-700/80">{item}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Modules & Lessons */}
+          {!isDigitalProduct && (
           <div>
             <h2 className="text-lg font-bold text-foreground mb-4">Kurs dasturi</h2>
             <div className="space-y-3">
@@ -191,6 +258,7 @@ export default async function CoursePage({ params }: { params: Promise<{ slug: s
               ))}
             </div>
           </div>
+          )}
         </div>
 
         {/* Sticky price card */}
@@ -201,14 +269,26 @@ export default async function CoursePage({ params }: { params: Promise<{ slug: s
                 <div className="inline-block bg-brand-50 text-brand-700 text-xs font-semibold px-3 py-1 rounded-full mb-4">
                   Faol kurs
                 </div>
-                <p className="text-sm text-brand-700/60 mb-5">Kursga yozilgansiz. Davom etishingiz mumkin.</p>
-                {firstFreeLesson && (
-                  <Link
-                    href={`/course/${slug}/lesson/${firstFreeLesson.id}`}
-                    className="block w-full bg-brand-600 hover:bg-brand-700 text-white font-semibold py-3 rounded-xl text-center transition-colors duration-200 cursor-pointer"
-                  >
-                    Davom etish →
-                  </Link>
+                {isDigitalProduct ? (
+                  <>
+                    <p className="text-sm text-brand-700/60 mb-5">Xarid qilindi. Materiallar tayyorlanmoqda.</p>
+                    <div className="bg-brand-50 text-brand-700/60 text-sm font-medium py-3 rounded-xl text-center cursor-not-allowed select-none">
+                      Yuklab olish tez orada
+                    </div>
+                    {/* TODO: wire secure PDF delivery (e.g. Supabase Storage signed URL) once storage is configured */}
+                  </>
+                ) : (
+                  <>
+                    <p className="text-sm text-brand-700/60 mb-5">Kursga yozilgansiz. Davom etishingiz mumkin.</p>
+                    {firstFreeLesson && (
+                      <Link
+                        href={`/course/${slug}/lesson/${firstFreeLesson.id}`}
+                        className="block w-full bg-brand-600 hover:bg-brand-700 text-white font-semibold py-3 rounded-xl text-center transition-colors duration-200 cursor-pointer"
+                      >
+                        Davom etish →
+                      </Link>
+                    )}
+                  </>
                 )}
               </>
             ) : (
@@ -227,12 +307,16 @@ export default async function CoursePage({ params }: { params: Promise<{ slug: s
                 )}
 
                 <div className="space-y-2.5 mb-5 text-sm text-brand-700/70">
-                  {[
+                  {(isDigitalProduct ? [
+                    'Bosqichma-bosqich chek-list',
+                    'Tayyor hujjat shablonlari',
+                    'Darhol yuklab olish imkoniyati',
+                  ] : [
                     '4 haftalik intensiv',
                     'Individual dastur',
                     'Natija kafolati',
                     'Umrbod kirish imkoniyati',
-                  ].map(f => (
+                  ]).map(f => (
                     <div key={f} className="flex items-center gap-2">
                       <svg className="w-4 h-4 text-brand-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
@@ -244,7 +328,7 @@ export default async function CoursePage({ params }: { params: Promise<{ slug: s
 
                 <Link
                   href={user ? `/course/${slug}/checkout` : '/register'}
-                  className="block w-full bg-cta-600 hover:bg-cta-700 text-white font-semibold py-3 rounded-xl text-center transition-colors duration-200 cursor-pointer mb-3"
+                  className="block w-full bg-coral-500 hover:bg-coral-600 text-white font-semibold py-3 rounded-xl text-center transition-colors duration-200 cursor-pointer mb-3"
                 >
                   {user ? 'Sotib olish →' : "Ro'yxatdan o'tish →"}
                 </Link>
@@ -268,5 +352,6 @@ export default async function CoursePage({ params }: { params: Promise<{ slug: s
 
       </div>
     </div>
+    </>
   )
 }

@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import CompleteButton from './complete-button'
 import type { Metadata } from 'next'
 import type { Database } from '@/lib/supabase/types'
+import { NOINDEX } from '@/lib/site'
 
 type Lesson = Database['public']['Tables']['lessons']['Row']
 type ModuleRow = Database['public']['Tables']['modules']['Row']
@@ -18,6 +19,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
   return {
     title: lesson?.title ?? 'Dars',
+    // Lesson bodies sit behind enrollment — never index them.
+    ...NOINDEX,
     openGraph: {
       title: lesson ? `${lesson.title} | Bilimyo` : 'Bilimyo',
       type: 'website',
@@ -172,7 +175,7 @@ export default async function LessonPage({ params }: { params: Promise<{ slug: s
             ) : (
               <Link
                 href={`/register?next=/course/${slug}/lesson/${id}`}
-                className="bg-cta-600 hover:bg-cta-700 text-white font-semibold px-6 py-3 rounded-xl transition-colors duration-200 cursor-pointer text-sm"
+                className="bg-coral-500 hover:bg-coral-600 text-white font-semibold px-6 py-3 rounded-xl transition-colors duration-200 cursor-pointer text-sm"
               >
                 Ro'yxatdan o'ting — bepul →
               </Link>

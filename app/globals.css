@@ -1,34 +1,41 @@
 @import "tailwindcss";
 
 /*
-  Rus Maktabi LMS — Design System
+  Bilimyo LMS — Design System
   Style: Trust & Authority (ui-ux-pro-max)
   Focus: Parents purchasing children's education
   Pattern: Hero + Testimonials + CTA
 */
 :root {
   /* Base */
-  --background: #F0FDFA;
-  --foreground: #134E4A;
+  --background: #FBEFE9;
+  --foreground: #23201D;
 
-  /* Brand: Trust Teal — доверие, рост, образование */
-  --brand-50:  #f0fdfa;
-  --brand-100: #ccfbf1;
-  --brand-200: #99f6e4;
-  --brand-400: #2dd4bf;
-  --brand-500: #14b8a6;
-  --brand-600: #0d9488;
-  --brand-700: #0f766e;
-  --brand-800: #115e59;
+  /* Brand: Dark Teal — доверие, рост, образование */
+  --brand-50:  #E7F2F2;
+  --brand-100: #C9E3E3;
+  --brand-200: #94C7C8;
+  --brand-400: #2E8A8C;
+  --brand-500: #0F6C6E;
+  --brand-600: #06585B;
+  --brand-700: #005255;
+  --brand-800: #003638;
 
-  /* CTA: Professional Blue — призыв к действию */
-  --cta-500: #0ea5e9;
-  --cta-600: #0369a1;
-  --cta-700: #075985;
+  /* Coral — акцент, часто используемые действия */
+  --coral-50:  #FFF0EB;
+  --coral-100: #FFDDD0;
+  --coral-500: #FB7354;
+  --coral-600: #F15A38;
+  --coral-700: #D64323;
 
-  /* Accent: для статусов, прогресса */
-  --accent-500: #14b8a6;
-  --accent-600: #0d9488;
+  /* CTA: Red — только для самых важных призывов к действию */
+  --cta-500: #FB5B40;
+  --cta-600: #F93B1B;
+  --cta-700: #D42D10;
+
+  /* Accent: для статусов, прогресса (teal) */
+  --accent-500: #0F6C6E;
+  --accent-600: #06585B;
 
   /* Neutrals */
   --gray-50:  #f8fafc;
@@ -52,6 +59,12 @@
   --color-brand-600: var(--brand-600);
   --color-brand-700: var(--brand-700);
   --color-brand-800: var(--brand-800);
+
+  --color-coral-50:  var(--coral-50);
+  --color-coral-100: var(--coral-100);
+  --color-coral-500: var(--coral-500);
+  --color-coral-600: var(--coral-600);
+  --color-coral-700: var(--coral-700);
 
   --color-cta-500: var(--cta-500);
   --color-cta-600: var(--cta-600);

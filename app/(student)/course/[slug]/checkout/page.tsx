@@ -2,6 +2,10 @@ import { notFound, redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import CheckoutForm from './checkout-form'
 import type { Database } from '@/lib/supabase/types'
+import type { Metadata } from 'next'
+import { NOINDEX } from '@/lib/site'
+
+export const metadata: Metadata = NOINDEX
 
 type Course = Database['public']['Tables']['courses']['Row']
 
@@ -40,10 +44,14 @@ export default async function CheckoutPage({ params }: { params: Promise<{ slug:
 
       {/* Course summary */}
       <div className="bg-brand-50 rounded-2xl border border-brand-100 p-5 mb-6">
-        <div className="text-xs text-brand-600/50 uppercase tracking-wide mb-1">Kurs</div>
+        <div className="text-xs text-brand-600/50 uppercase tracking-wide mb-1">
+          {course.product_type === 'digital_product' ? 'Mahsulot' : 'Kurs'}
+        </div>
         <div className="font-semibold text-foreground">{course.title}</div>
         <div className="flex items-center justify-between mt-3 pt-3 border-t border-brand-100">
-          <div className="text-sm text-brand-700/60">To'liq kurs, umrbod kirish</div>
+          <div className="text-sm text-brand-700/60">
+            {course.product_type === 'digital_product' ? 'Bir martalik xarid, umrbod kirish' : "To'liq kurs, umrbod kirish"}
+          </div>
           <div className="text-right">
             <div className="font-bold text-foreground">
               {(course.price_uzs / 1000).toFixed(0)}k so'm
