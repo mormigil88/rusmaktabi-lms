@@ -2,7 +2,6 @@
 -- Rus Maktabi LMS — начальная схема БД
 -- ============================================================
 
-create extension if not exists "uuid-ossp";
 
 -- ============================================================
 -- ПОЛЬЗОВАТЕЛИ
@@ -42,7 +41,7 @@ create trigger on_auth_user_created
 -- КУРСЫ
 -- ============================================================
 create table public.courses (
-  id          uuid primary key default uuid_generate_v4(),
+  id          uuid primary key default gen_random_uuid(),
   title       text not null,
   slug        text not null unique,
   description text,
@@ -64,7 +63,7 @@ create policy "courses_admin_all" on public.courses for all
 -- ЗАПИСИ (ENROLLMENTS) — до lessons, т.к. lessons policy ссылается сюда
 -- ============================================================
 create table public.enrollments (
-  id         uuid primary key default uuid_generate_v4(),
+  id         uuid primary key default gen_random_uuid(),
   user_id    uuid not null references public.users(id) on delete cascade,
   course_id  uuid not null references public.courses(id) on delete cascade,
   paid_at    timestamptz,
@@ -85,7 +84,7 @@ create policy "enrollments_admin_all" on public.enrollments for all
 -- МОДУЛИ
 -- ============================================================
 create table public.modules (
-  id        uuid primary key default uuid_generate_v4(),
+  id        uuid primary key default gen_random_uuid(),
   course_id uuid not null references public.courses(id) on delete cascade,
   title     text not null,
   "order"   integer not null default 0
@@ -106,7 +105,7 @@ create policy "modules_admin_all" on public.modules for all
 -- УРОКИ
 -- ============================================================
 create table public.lessons (
-  id             uuid primary key default uuid_generate_v4(),
+  id             uuid primary key default gen_random_uuid(),
   module_id      uuid not null references public.modules(id) on delete cascade,
   title          text not null,
   content_md     text,
@@ -139,7 +138,7 @@ create policy "lessons_admin_all" on public.lessons for all
 -- ПРОГРЕСС ПО УРОКАМ
 -- ============================================================
 create table public.lesson_progress (
-  id           uuid primary key default uuid_generate_v4(),
+  id           uuid primary key default gen_random_uuid(),
   user_id      uuid not null references public.users(id) on delete cascade,
   lesson_id    uuid not null references public.lessons(id) on delete cascade,
   completed_at timestamptz not null default now(),
@@ -154,7 +153,7 @@ create policy "progress_all_own" on public.lesson_progress for all using (auth.u
 -- ПЛАТЕЖИ
 -- ============================================================
 create table public.payments (
-  id          uuid primary key default uuid_generate_v4(),
+  id          uuid primary key default gen_random_uuid(),
   user_id     uuid not null references public.users(id) on delete cascade,
   course_id   uuid not null references public.courses(id) on delete cascade,
   amount      integer not null,

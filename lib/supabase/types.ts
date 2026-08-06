@@ -1,5 +1,6 @@
 export type Role = 'student' | 'teacher' | 'admin'
 export type CourseStatus = 'draft' | 'published' | 'archived'
+export type ProductType = 'course' | 'digital_product'
 export type EnrollmentStatus = 'pending' | 'active' | 'expired' | 'refunded'
 export type PaymentStatus = 'pending' | 'paid' | 'failed' | 'refunded'
 export type PaymentProvider = 'payme' | 'yookassa' | 'manual'
@@ -35,6 +36,7 @@ export interface Database {
           language: Language
           thumbnail: string | null
           status: CourseStatus
+          product_type: ProductType
           created_at: string
         }
         Insert: Omit<Database['public']['Tables']['courses']['Row'], 'id' | 'created_at'>

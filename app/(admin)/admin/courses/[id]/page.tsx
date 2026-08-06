@@ -7,7 +7,7 @@ type Lesson = { id: string; title: string; video_url: string | null; is_free: bo
 type Module = { id: string; title: string; order: number; lessons: Lesson[] }
 type Course = {
   id: string; title: string; slug: string; description: string | null
-  price_uzs: number; price_rub: number; status: string
+  price_uzs: number; price_rub: number; status: string; product_type: string
   modules: Module[]
 }
 
@@ -17,7 +17,7 @@ export default async function CourseEditPage({ params }: { params: Promise<{ id:
 
   const { data: course } = await db
     .from('courses')
-    .select('id, title, slug, description, price_uzs, price_rub, status, modules(id, title, order, lessons(id, title, video_url, is_free, duration_min, order))')
+    .select('id, title, slug, description, price_uzs, price_rub, status, product_type, modules(id, title, order, lessons(id, title, video_url, is_free, duration_min, order))')
     .eq('id', id)
     .single() as { data: Course | null }
 
@@ -32,6 +32,9 @@ export default async function CourseEditPage({ params }: { params: Promise<{ id:
         <Link href="/admin/courses" className="hover:text-brand-600 cursor-pointer">Курсы</Link>
         <span>/</span>
         <span className="text-gray-700">{course.title}</span>
+        {course.product_type === 'digital_product' && (
+          <span className="text-xs bg-coral-50 text-coral-700 px-1.5 py-0.5 rounded font-medium">Digital</span>
+        )}
       </div>
 
       {/* Course edit form */}
@@ -85,7 +88,12 @@ export default async function CourseEditPage({ params }: { params: Promise<{ id:
         </form>
       </div>
 
-      {/* Modules & Lessons */}
+      {/* Modules & Lessons — not applicable to digital products (no lessons to deliver) */}
+      {course.product_type === 'digital_product' ? (
+        <div className="bg-white rounded-xl border border-dashed border-gray-300 p-5 text-sm text-gray-500">
+          Digital-mahsulot uchun modul/dars kerak emas. Kontent hozircha qo&apos;lda tayyorlanadi (TODO: xavfsiz fayl yetkazish).
+        </div>
+      ) : (
       <div className="space-y-4">
         {modules.map(mod => (
           <div key={mod.id} className="bg-white rounded-xl border border-gray-200 overflow-hidden">
@@ -205,6 +213,7 @@ export default async function CourseEditPage({ params }: { params: Promise<{ id:
           </form>
         </div>
       </div>
+      )}
     </div>
   )
 }
