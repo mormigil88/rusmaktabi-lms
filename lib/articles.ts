@@ -19,7 +19,7 @@ export const articles: Article[] = [
     title: "O'zbekistondan Rossiya maktabiga qabul: 2025–2026 federal talablari",
     description:
       "Hujjatlar ro'yxati, rus tili bo'yicha majburiy test, maktab moslashuvi muddatlari — 273-FZ va Minprosveshcheniya buyruqlari asosida.",
-    isDraft: true,
+    isDraft: false,
     updatedAt: '2026-08-06',
     body: `## Nima uchun bu muhim
 
@@ -103,7 +103,7 @@ Ishonchli manbalar: 273-FZ (ta'lim to'g'risida), 544-FZ (2024-yil 28-dekabr), Mi
     title: 'Подготовка к российской школе из Узбекистана: федеральные требования 2025–2026',
     description:
       'Документы для зачисления, обязательное тестирование по русскому языку, сроки адаптации — по 273-ФЗ и приказам Минпросвещения.',
-    isDraft: true,
+    isDraft: false,
     updatedAt: '2026-08-06',
     body: `## Почему это важно
 
