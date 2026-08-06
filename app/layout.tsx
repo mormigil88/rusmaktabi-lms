@@ -37,6 +37,7 @@ export const metadata: Metadata = {
 };
 
 const YM_ID = 109950575;
+const GA_ID = process.env.NEXT_PUBLIC_GA_ID;
 
 export default function RootLayout({
   children,
@@ -66,6 +67,19 @@ export default function RootLayout({
             <img src={`https://mc.yandex.ru/watch/${YM_ID}`} style={{position:'absolute',left:'-9999px'}} alt="" />
           </div>
         </noscript>
+
+        {/* Google Analytics 4 — only loads when NEXT_PUBLIC_GA_ID is set (skip in local dev) */}
+        {GA_ID && (
+          <>
+            <Script src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`} strategy="afterInteractive" />
+            <Script id="ga-init" strategy="afterInteractive">{`
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', '${GA_ID}');
+            `}</Script>
+          </>
+        )}
       </body>
     </html>
   );
