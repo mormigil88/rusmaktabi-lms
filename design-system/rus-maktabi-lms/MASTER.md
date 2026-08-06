@@ -6,8 +6,9 @@
 
 ---
 
-**Project:** Rus Maktabi LMS
+**Project:** Bilimyo LMS
 **Generated:** 2026-06-21 19:49:58
+**Rebranded:** 2026-08-03 (Rus Maktabi → Bilimyo)
 **Category:** Consulting Firm
 
 ---
@@ -16,15 +17,17 @@
 
 ### Color Palette
 
+> ✅ **03.08.2026: migrated.** Official Bilimyo palette (KlingAI logo, see Obsidian note "Бренд — официальный логотип и палитра") is now live in `app/globals.css`. Table below reflects the current deployed tokens.
+
 | Role | Hex | CSS Variable |
 |------|-----|--------------|
-| Primary | `#0F766E` | `--color-primary` |
-| Secondary | `#14B8A6` | `--color-secondary` |
-| CTA/Accent | `#0369A1` | `--color-cta` |
-| Background | `#F0FDFA` | `--color-background` |
-| Text | `#134E4A` | `--color-text` |
+| Primary (dark teal) | `#005255` | `--brand-700` |
+| Coral (frequent actions) | `#FB7354` | `--coral-500` |
+| CTA (top-priority actions only) | `#F93B1B` | `--cta-600` |
+| Background | `#FBEFE9` | `--background` |
+| Text | `#23201D` | `--foreground` |
 
-**Color Notes:** Trust teal + professional blue
+**Color Notes:** Dark teal for structure/trust, coral for everyday actions, red reserved for the single highest-commitment CTA per page (free-diagnostic registration, checkout pay button).
 
 ### Typography
 
