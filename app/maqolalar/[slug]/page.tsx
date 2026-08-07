@@ -93,8 +93,8 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
     description: article.description,
     dateModified: article.updatedAt,
     inLanguage: article.locale === 'uz' ? 'uz' : 'ru',
-    author: { '@type': 'Organization', name: 'Bilimyo' },
-    publisher: { '@type': 'Organization', name: 'Bilimyo' },
+    author: { '@type': 'Organization', name: 'Bilimora' },
+    publisher: { '@type': 'Organization', name: 'Bilimora' },
   }
 
   return (

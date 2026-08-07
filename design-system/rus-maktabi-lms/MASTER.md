@@ -6,9 +6,9 @@
 
 ---
 
-**Project:** Bilimyo LMS
+**Project:** Bilimora LMS
 **Generated:** 2026-06-21 19:49:58
-**Rebranded:** 2026-08-03 (Rus Maktabi → Bilimyo)
+**Rebranded:** 2026-08-03 (Rus Maktabi → Bilimora)
 **Category:** Consulting Firm
 
 ---
@@ -17,7 +17,7 @@
 
 ### Color Palette
 
-> ✅ **03.08.2026: migrated.** Official Bilimyo palette (KlingAI logo, see Obsidian note "Бренд — официальный логотип и палитра") is now live in `app/globals.css`. Table below reflects the current deployed tokens.
+> ✅ **03.08.2026: migrated.** Official Bilimora palette (KlingAI logo, see Obsidian note "Бренд — официальный логотип и палитра") is now live in `app/globals.css`. Table below reflects the current deployed tokens.
 
 | Role | Hex | CSS Variable |
 |------|-----|--------------|

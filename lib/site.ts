@@ -8,9 +8,9 @@
  */
 import type { Metadata } from 'next'
 
-export const SITE_URL = (process.env.NEXT_PUBLIC_APP_URL ?? 'https://bilimyo.uz').replace(/\/+$/, '')
+export const SITE_URL = (process.env.NEXT_PUBLIC_APP_URL ?? 'https://bilimora.uz').replace(/\/+$/, '')
 
-export const SITE_NAME = 'Bilimyo'
+export const SITE_NAME = 'Bilimora'
 
 /**
  * Applied to pages that exist only for signed-in users (dashboard, checkout,

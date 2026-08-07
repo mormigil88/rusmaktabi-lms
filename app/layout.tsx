@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Lexend, Source_Sans_3 } from "next/font/google";
 import Script from "next/script";
+import { SITE_NAME, SITE_URL } from "@/lib/site";
 import "./globals.css";
 
 const lexend = Lexend({
@@ -17,18 +18,18 @@ const sourceSans = Source_Sans_3({
 
 export const metadata: Metadata = {
   title: {
-    default: "Bilimyo — O'zbek bolalari uchun rus tili",
-    template: "%s | Bilimyo",
+    default: "Bilimora — O'zbek bolalari uchun rus tili",
+    template: `%s | ${SITE_NAME}`,
   },
   description: "Bolangizni 4 haftada Rossiya maktabiga tayyorlaymiz. Bepul diagnostika — 20 daqiqa Zoom. 97% maktabga qabul kafolati.",
   keywords: ["rus tili", "maktab", "o'zbek bolalar", "Rossiya maktabi", "rus tili kursi"],
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL ?? "https://bilimyo.com"),
+  metadataBase: new URL(SITE_URL),
   openGraph: {
-    title: "Bilimyo — Bolangizni Rossiya maktabiga 4 haftada tayyorlaymiz",
+    title: "Bilimora — Bolangizni Rossiya maktabiga 4 haftada tayyorlaymiz",
     description: "Bepul diagnostika — 20 daqiqa Zoom. 97% maktabga qabul kafolati. 200+ muvaffaqiyatli o'quvchi.",
     locale: "uz_UZ",
     type: "website",
-    siteName: "Bilimyo",
+    siteName: SITE_NAME,
   },
   robots: {
     index: true,

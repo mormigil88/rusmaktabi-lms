@@ -22,7 +22,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     // Lesson bodies sit behind enrollment — never index them.
     ...NOINDEX,
     openGraph: {
-      title: lesson ? `${lesson.title} | Bilimyo` : 'Bilimyo',
+      title: lesson ? `${lesson.title} | Bilimora` : 'Bilimora',
       type: 'website',
     },
   }

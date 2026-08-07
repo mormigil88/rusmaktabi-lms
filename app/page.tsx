@@ -14,7 +14,7 @@ const testimonials = [
     result: '3 haftada natija',
   },
   {
-    text: "Boshqa kurslarda pul sarflab ko'rdik — natija yo'q edi. Bilimyoda 4 haftada o'g'lim 5-sinfga qabul qilindi.",
+    text: "Boshqa kurslarda pul sarflab ko'rdik — natija yo'q edi. Bilimorada 4 haftada o'g'lim 5-sinfga qabul qilindi.",
     name: 'Sardor Mirzayev',
     role: 'Samarqand, ota',
     result: '5-sinfga qabul',
@@ -257,7 +257,7 @@ export default async function HomePage() {
       </section>
 
       <footer className="bg-white border-t border-brand-100 py-6 text-center text-sm text-brand-600/50">
-        © 2026 Bilimyo. Barcha huquqlar himoyalangan.
+        © 2026 Bilimora. Barcha huquqlar himoyalangan.
       </footer>
     </>
   )
