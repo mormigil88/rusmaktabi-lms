@@ -64,6 +64,9 @@ export default function DownloadButton({ slug, ready }: Props) {
       >
         {state === 'loading' ? 'Tayyorlanmoqda…' : 'Yuklab olish →'}
       </button>
+      <p className="text-xs text-brand-600/50 text-center">
+        Havola 5 daqiqaga beriladi — boshqalar bilan ulashib bo'lmaydi
+      </p>
       {state === 'error' && errorMsg && (
         <p className="text-xs text-red-600 text-center">{errorMsg}</p>
       )}
