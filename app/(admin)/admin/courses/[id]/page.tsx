@@ -1,13 +1,14 @@
 import { createServiceClient } from '@/lib/supabase/service'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import { updateCourse, updateLesson, addLesson, addModule } from '@/app/actions/admin'
+import { updateCourse, updateLesson, addLesson, addModule, uploadDigitalProductFile, deleteDigitalProductFile } from '@/app/actions/admin'
 
 type Lesson = { id: string; title: string; video_url: string | null; is_free: boolean; duration_min: number; order: number }
 type Module = { id: string; title: string; order: number; lessons: Lesson[] }
 type Course = {
   id: string; title: string; slug: string; description: string | null
   price_uzs: number; price_rub: number; status: string; product_type: string
+  file_path: string | null
   modules: Module[]
 }
 
@@ -17,7 +18,7 @@ export default async function CourseEditPage({ params }: { params: Promise<{ id:
 
   const { data: course } = await db
     .from('courses')
-    .select('id, title, slug, description, price_uzs, price_rub, status, product_type, modules(id, title, order, lessons(id, title, video_url, is_free, duration_min, order))')
+    .select('id, title, slug, description, price_uzs, price_rub, status, product_type, file_path, modules(id, title, order, lessons(id, title, video_url, is_free, duration_min, order))')
     .eq('id', id)
     .single() as { data: Course | null }
 
@@ -88,10 +89,58 @@ export default async function CourseEditPage({ params }: { params: Promise<{ id:
         </form>
       </div>
 
-      {/* Modules & Lessons — not applicable to digital products (no lessons to deliver) */}
+      {/* Digital product: PDF upload (no lessons). Buyers get a signed URL via /api/download/[slug] */}
       {course.product_type === 'digital_product' ? (
-        <div className="bg-white rounded-xl border border-dashed border-gray-300 p-5 text-sm text-gray-500">
-          Digital-mahsulot uchun modul/dars kerak emas. Kontent hozircha qo&apos;lda tayyorlanadi (TODO: xavfsiz fayl yetkazish).
+        <div className="bg-white rounded-xl border border-gray-200 p-6">
+          <h2 className="text-sm font-semibold text-gray-700 mb-1">Файл для скачивания</h2>
+          <p className="text-xs text-gray-400 mb-4">
+            PDF хранится в Supabase Storage (private). Покупатели получают короткоживущую signed-ссылку через /api/download.
+          </p>
+
+          {course.file_path && (
+            <div className="bg-brand-50 border border-brand-100 rounded-lg px-4 py-3 mb-4 flex items-start justify-between gap-4">
+              <div className="min-w-0">
+                <div className="flex items-center gap-2 text-sm text-brand-700">
+                  <svg className="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                  </svg>
+                  <span className="font-medium">Файл загружен</span>
+                </div>
+                <code className="block mt-1 text-xs font-mono text-brand-700/70 truncate">{course.file_path}</code>
+              </div>
+              <form action={deleteDigitalProductFile} className="flex-shrink-0">
+                <input type="hidden" name="course_id" value={course.id} />
+                <button
+                  type="submit"
+                  className="text-xs text-red-600 hover:text-red-700 underline cursor-pointer"
+                >
+                  Удалить
+                </button>
+              </form>
+            </div>
+          )}
+
+          <form action={uploadDigitalProductFile} className="space-y-3" encType="multipart/form-data">
+            <input type="hidden" name="course_id" value={course.id} />
+            <div>
+              <label className="block text-xs text-gray-500 mb-1">
+                {course.file_path ? 'Заменить PDF (старый будет удалён)' : 'Загрузить PDF (макс. 25 MB)'}
+              </label>
+              <input
+                type="file"
+                name="file"
+                accept="application/pdf,.pdf"
+                required
+                className="block w-full text-sm text-gray-700 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-brand-600 file:text-white file:font-medium file:cursor-pointer hover:file:bg-brand-700 cursor-pointer"
+              />
+            </div>
+            <button
+              type="submit"
+              className="bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium px-4 py-2 rounded-lg cursor-pointer transition-colors"
+            >
+              {course.file_path ? 'Заменить файл' : 'Загрузить файл'}
+            </button>
+          </form>
         </div>
       ) : (
       <div className="space-y-4">

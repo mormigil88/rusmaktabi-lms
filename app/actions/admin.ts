@@ -5,6 +5,9 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { createServiceClient } from '@/lib/supabase/service'
 
+const MAX_FILE_BYTES = 25 * 1024 * 1024 // 25 MB cap on digital-product files
+const ALLOWED_MIME = new Set(['application/pdf'])
+
 async function requireAdmin() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -90,6 +93,94 @@ export async function addModule(formData: FormData) {
     title: formData.get('title') as string,
     order: nextOrder,
   } as never)
+
+  revalidatePath('/admin/courses')
+  redirect(`/admin/courses/${courseId}`)
+}
+
+// ── Digital products ──────────────────────────────────────────────────────────
+
+/**
+ * Upload a PDF file for a digital_product course.
+ * Deletes the previous file (if any) before uploading the new one to keep
+ * the bucket clean.
+ */
+export async function uploadDigitalProductFile(formData: FormData) {
+  const db = await requireAdmin()
+  const courseId = formData.get('course_id') as string
+  const file = formData.get('file') as File | null
+
+  if (!file || file.size === 0) {
+    throw new Error('Fayl tanlanmagan')
+  }
+  if (file.size > MAX_FILE_BYTES) {
+    throw new Error(`Fayl juda katta (maksimum ${MAX_FILE_BYTES / 1024 / 1024} MB)`)
+  }
+  if (!ALLOWED_MIME.has(file.type)) {
+    throw new Error('Faqat PDF fayllar qabul qilinadi')
+  }
+
+  // Look up slug to namespace the storage path
+  const { data: course } = await db
+    .from('courses')
+    .select('slug, file_path, product_type')
+    .eq('id', courseId)
+    .single() as { data: { slug: string; file_path: string | null; product_type: string } | null }
+
+  if (!course || course.product_type !== 'digital_product') {
+    throw new Error('Bu kurs digital product emas')
+  }
+
+  // Wipe the old file (best-effort — if it doesn't exist, ignore)
+  if (course.file_path) {
+    await db.storage.from('digital-products').remove([course.file_path])
+  }
+
+  // Build a deterministic storage path: <slug>/<timestamp>-<original-name>
+  // Falls back to a uuid if filename is unsafe (Cyrillic, spaces, etc.)
+  const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_').slice(-80)
+  const storagePath = `${course.slug}/${Date.now()}-${safeName || 'file.pdf'}`
+
+  const buffer = Buffer.from(await file.arrayBuffer())
+  const { error: uploadError } = await db.storage
+    .from('digital-products')
+    .upload(storagePath, buffer, {
+      contentType: 'application/pdf',
+      upsert: false,
+    })
+
+  if (uploadError) {
+    throw new Error(`Yuklashda xatolik: ${uploadError.message}`)
+  }
+
+  await db.from('courses').update({
+    file_path: storagePath,
+    // uploaded_at could be added later; we keep schema minimal for now
+  } as never).eq('id', courseId)
+
+  revalidatePath('/admin/courses')
+  redirect(`/admin/courses/${courseId}`)
+}
+
+/** Remove the file attached to a digital_product without deleting the course. */
+export async function deleteDigitalProductFile(formData: FormData) {
+  const db = await requireAdmin()
+  const courseId = formData.get('course_id') as string
+
+  const { data: course } = await db
+    .from('courses')
+    .select('file_path, product_type')
+    .eq('id', courseId)
+    .single() as { data: { file_path: string | null; product_type: string } | null }
+
+  if (!course || course.product_type !== 'digital_product') {
+    throw new Error('Bu kurs digital product emas')
+  }
+
+  if (course.file_path) {
+    await db.storage.from('digital-products').remove([course.file_path])
+  }
+  await db.from('courses').update({ file_path: null } as never).eq('id', courseId)
 
   revalidatePath('/admin/courses')
   redirect(`/admin/courses/${courseId}`)

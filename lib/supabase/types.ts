@@ -37,6 +37,7 @@ export interface Database {
           thumbnail: string | null
           status: CourseStatus
           product_type: ProductType
+          file_path: string | null
           created_at: string
         }
         Insert: Omit<Database['public']['Tables']['courses']['Row'], 'id' | 'created_at'>

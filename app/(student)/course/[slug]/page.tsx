@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import JsonLd from '@/components/json-ld'
+import DownloadButton from '@/components/download-button'
 import { SITE_NAME, SITE_URL } from '@/lib/site'
 import type { Metadata } from 'next'
 import type { Database } from '@/lib/supabase/types'
@@ -271,11 +272,8 @@ export default async function CoursePage({ params }: { params: Promise<{ slug: s
                 </div>
                 {isDigitalProduct ? (
                   <>
-                    <p className="text-sm text-brand-700/60 mb-5">Xarid qilindi. Materiallar tayyorlanmoqda.</p>
-                    <div className="bg-brand-50 text-brand-700/60 text-sm font-medium py-3 rounded-xl text-center cursor-not-allowed select-none">
-                      Yuklab olish tez orada
-                    </div>
-                    {/* TODO: wire secure PDF delivery (e.g. Supabase Storage signed URL) once storage is configured */}
+                    <p className="text-sm text-brand-700/60 mb-5">Xarid qilindi. Faylni yuklab oling:</p>
+                    <DownloadButton slug={slug} ready={course.file_path != null} />
                   </>
                 ) : (
                   <>
