@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
+import { track } from '@/lib/analytics'
 
 const CONSENT_VERSION = '2.2'
 const CONSENT_DATE = '2026-08-10'
@@ -56,6 +57,13 @@ export default function RegisterPage() {
       setLoading(false)
       return
     }
+
+    // Meta Pixel: lead captured (registration completed). Gated by cookie consent
+    // (lib/analytics.ts — no-op if user picked "Faqat zaruriy").
+    track('Lead', {
+      content_name: 'registration',
+      content_category: 'signup',
+    })
 
     router.push('/dashboard')
     router.refresh()

@@ -1,17 +1,20 @@
-import { notFound } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import type { Database } from '@/lib/supabase/types'
 import type { Metadata } from 'next'
 import { NOINDEX } from '@/lib/site'
+import AnalyticsPurchase from '@/components/analytics-purchase'
 
 export const metadata: Metadata = NOINDEX
 
 type Course = Database['public']['Tables']['courses']['Row']
+type Payment = Pick<Database['public']['Tables']['payments']['Row'], 'amount' | 'currency' | 'status'>
 
 export default async function SuccessPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
   const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
 
   const { data: course } = await supabase
     .from('courses')
@@ -20,6 +23,41 @@ export default async function SuccessPage({ params }: { params: Promise<{ slug: 
     .single() as { data: Pick<Course, 'id' | 'title' | 'slug'> | null }
 
   if (!course) notFound()
+
+  // Only fire Purchase when an active enrollment + paid payment exist for this user.
+  // Without this guard, anyone who opens /success manually would inflate Pixel events.
+  let purchaseValue = 0
+  let purchaseCurrency: 'UZS' | 'RUB' = 'UZS'
+  if (user) {
+    const { data: enrollment } = await supabase
+      .from('enrollments')
+      .select('id, status')
+      .eq('user_id', user.id)
+      .eq('course_id', course.id)
+      .eq('status', 'active')
+      .maybeSingle()
+
+    if (!enrollment) {
+      // No active enrollment — this is either a reload, or someone bookmarked the URL.
+      // Don't show Purchase event, just send them back to the course page.
+      redirect(`/course/${slug}`)
+    }
+
+    const { data: payment } = await supabase
+      .from('payments')
+      .select('amount, currency, status')
+      .eq('user_id', user.id)
+      .eq('course_id', course.id)
+      .eq('status', 'paid')
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle() as { data: Payment | null }
+
+    if (payment) {
+      purchaseValue = payment.amount
+      purchaseCurrency = (payment.currency as 'UZS' | 'RUB') ?? 'UZS'
+    }
+  }
 
   // Get first lesson to link directly
   const { data: firstModule } = await supabase
@@ -42,6 +80,14 @@ export default async function SuccessPage({ params }: { params: Promise<{ slug: 
 
   return (
     <div className="max-w-lg mx-auto px-4 py-16 text-center">
+      {purchaseValue > 0 && (
+        <AnalyticsPurchase
+          contentName={course.title}
+          contentIds={[course.id]}
+          value={purchaseValue}
+          currency={purchaseCurrency}
+        />
+      )}
       {/* Success icon */}
       <div className="w-20 h-20 bg-brand-50 rounded-full flex items-center justify-center mx-auto mb-6">
         <svg className="w-10 h-10 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">

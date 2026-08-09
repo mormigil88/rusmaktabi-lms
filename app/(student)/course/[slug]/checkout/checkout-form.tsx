@@ -1,7 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { initiatePayme, initiateYooKassa } from '@/app/actions/payments'
+import { track } from '@/lib/analytics'
 
 interface CheckoutFormProps {
   courseId: string
@@ -21,9 +22,35 @@ export default function CheckoutForm({
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
+  // Fire InitiateCheckout once when the user reaches the checkout page.
+  // Analytics is gated by cookie consent (lib/analytics.ts), so this is a no-op
+  // for users who picked "Faqat zaruriy".
+  useEffect(() => {
+    track('InitiateCheckout', {
+      content_name: courseTitle,
+      content_ids: [courseId],
+      content_type: 'product',
+      value: method === 'payme' ? priceUzs : priceRub,
+      currency: method === 'payme' ? 'UZS' : 'RUB',
+      num_items: 1,
+    })
+    // Only on first mount — not on method change (that's what AddPaymentInfo is for).
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   async function handlePay() {
     setLoading(true)
     setError('')
+
+    // Fire AddPaymentInfo right before redirecting to the gateway.
+    // Best-effort: track() is fire-and-forget.
+    track('AddPaymentInfo', {
+      content_name: courseTitle,
+      content_ids: [courseId],
+      content_type: 'product',
+      value: method === 'payme' ? priceUzs : priceRub,
+      currency: method === 'payme' ? 'UZS' : 'RUB',
+    })
 
     try {
       if (method === 'payme') {

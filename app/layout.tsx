@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import { Lexend, Source_Sans_3 } from "next/font/google";
 import Script from "next/script";
 import { SITE_NAME, SITE_URL } from "@/lib/site";
+import Footer from "@/components/footer";
+import CookieBanner from "@/components/cookie-banner";
+import MetaPixel from "@/components/meta-pixel";
 import "./globals.css";
 
 const lexend = Lexend({
@@ -39,6 +42,7 @@ export const metadata: Metadata = {
 
 const YM_ID = 109950575;
 const GA_ID = process.env.NEXT_PUBLIC_GA_ID;
+const META_PIXEL_ID = process.env.NEXT_PUBLIC_META_PIXEL_ID;
 
 export default function RootLayout({
   children,
@@ -51,7 +55,11 @@ export default function RootLayout({
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </head>
       <body className="min-h-full flex flex-col bg-background text-foreground">
-        {children}
+        <div className="flex-1">
+          {children}
+        </div>
+        <Footer />
+        <CookieBanner />
 
         {/* Yandex.Metrica */}
         <Script id="ym-init" strategy="afterInteractive">{`
@@ -76,11 +84,20 @@ export default function RootLayout({
             <Script id="ga-init" strategy="afterInteractive">{`
               window.dataLayer = window.dataLayer || [];
               function gtag(){dataLayer.push(arguments);}
+              gtag('consent', 'default', {
+                analytics_storage: 'denied',
+                ad_storage: 'denied',
+                wait_for_update: 500,
+              });
               gtag('js', new Date());
               gtag('config', '${GA_ID}');
             `}</Script>
           </>
         )}
+
+        {/* Meta Pixel — only loads when NEXT_PUBLIC_META_PIXEL_ID is set; events are gated
+            by the cookie-banner "Hammasi" consent (see lib/analytics.ts). */}
+        {META_PIXEL_ID && <MetaPixel pixelId={META_PIXEL_ID} />}
       </body>
     </html>
   );

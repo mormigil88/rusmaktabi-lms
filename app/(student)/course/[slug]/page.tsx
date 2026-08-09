@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import JsonLd from '@/components/json-ld'
 import DownloadButton from '@/components/download-button'
+import AnalyticsViewContent from '@/components/analytics-view-content'
 import { SITE_NAME, SITE_URL } from '@/lib/site'
 import type { Metadata } from 'next'
 import type { Database } from '@/lib/supabase/types'
@@ -114,6 +115,12 @@ export default async function CoursePage({ params }: { params: Promise<{ slug: s
   return (
     <>
     <JsonLd data={jsonLd} />
+    <AnalyticsViewContent
+      contentName={course.title}
+      contentCategory={isDigitalProduct ? 'digital_product' : 'course'}
+      value={course.price_uzs}
+      currency="UZS"
+    />
     <div className="max-w-5xl mx-auto px-4 py-10 pb-28 sm:pb-10">
       {/* Sticky mobile CTA — appears only on small screens */}
       {!isEnrolled && (
