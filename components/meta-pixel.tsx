@@ -20,7 +20,12 @@ export default function MetaPixel({ pixelId }: { pixelId: string }) {
     function applyConsent(value: string | null) {
       if (value === 'all') {
         // Initialise Pixel (idempotent — Meta dedupes by pixelId).
-        if (typeof window !== 'undefined' && window.fbq && !window._fbq) {
+        if (typeof window === 'undefined' || !window.fbq) return
+        // fbq.getState() is in Meta's runtime but not in TS types — cast through any.
+        const state = (window.fbq as unknown as { getState?: () => { pixels?: unknown[] } })
+          .getState?.()
+        const already = Array.isArray(state?.pixels) && state.pixels.includes(pixelId)
+        if (!already) {
           window.fbq('init', pixelId)
           window.fbq('track', 'PageView')
         }
