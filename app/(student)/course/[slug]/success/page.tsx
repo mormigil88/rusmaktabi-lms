@@ -5,6 +5,7 @@ import type { Database } from '@/lib/supabase/types'
 import type { Metadata } from 'next'
 import { NOINDEX } from '@/lib/site'
 import AnalyticsPurchase from '@/components/analytics-purchase'
+import { DIAGNOSTIC_FORM_URL } from '@/lib/funnel'
 
 export const metadata: Metadata = NOINDEX
 
@@ -18,9 +19,9 @@ export default async function SuccessPage({ params }: { params: Promise<{ slug: 
 
   const { data: course } = await supabase
     .from('courses')
-    .select('id, title, slug')
+    .select('id, title, slug, product_type')
     .eq('slug', slug)
-    .single() as { data: Pick<Course, 'id' | 'title' | 'slug'> | null }
+    .single() as { data: Pick<Course, 'id' | 'title' | 'slug' | 'product_type'> | null }
 
   if (!course) notFound()
 
@@ -99,10 +100,12 @@ export default async function SuccessPage({ params }: { params: Promise<{ slug: 
         To'lov muvaffaqiyatli!
       </h1>
       <p className="text-brand-700/60 mb-2">
-        <span className="font-medium text-foreground">{course.title}</span> kursiga yozildingiz.
+        <span className="font-medium text-foreground">{course.title}</span>{course.product_type === 'digital_product' ? ' xarid qilindi.' : ' kursiga yozildingiz.'}
       </p>
       <p className="text-sm text-brand-600/50 mb-10">
-        Hoziroq birinchi darsni boshlashingiz mumkin.
+        {course.product_type === 'digital_product'
+          ? "Materiallarni yuklab oling, keyin o'qituvchimiz bilan bepul diagnostikaga yoziling."
+          : 'Hoziroq birinchi darsni boshlashingiz mumkin.'}
       </p>
 
       <div className="space-y-3">
@@ -120,6 +123,17 @@ export default async function SuccessPage({ params }: { params: Promise<{ slug: 
           >
             Kursga o'tish →
           </Link>
+        )}
+
+        {course.product_type === 'digital_product' && (
+          <a
+            href={DIAGNOSTIC_FORM_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="block w-full bg-coral-500 hover:bg-coral-600 text-white font-bold py-4 rounded-2xl transition-colors duration-200 cursor-pointer"
+          >
+            O&apos;qituvchi bilan bepul diagnostika →
+          </a>
         )}
 
         <Link

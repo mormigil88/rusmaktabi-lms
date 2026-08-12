@@ -26,7 +26,11 @@ export default function LoginPage() {
       return
     }
 
-    router.push('/dashboard')
+    const requestedNext = new URLSearchParams(window.location.search).get('next')
+    const safeNext = requestedNext?.startsWith('/') && !requestedNext.startsWith('//')
+      ? requestedNext
+      : '/dashboard'
+    router.push(safeNext)
     router.refresh()
   }
 

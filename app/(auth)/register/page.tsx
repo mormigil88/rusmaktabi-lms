@@ -65,7 +65,11 @@ export default function RegisterPage() {
       content_category: 'signup',
     })
 
-    router.push('/dashboard')
+    const requestedNext = new URLSearchParams(window.location.search).get('next')
+    const safeNext = requestedNext?.startsWith('/') && !requestedNext.startsWith('//')
+      ? requestedNext
+      : '/dashboard'
+    router.push(safeNext)
     router.refresh()
   }
 
@@ -73,10 +77,10 @@ export default function RegisterPage() {
     <div className="w-full max-w-md">
       <div className="text-center mb-8">
         <span className="inline-block bg-brand-50 text-brand-700 text-xs font-semibold px-3 py-1 rounded-full mb-3">
-          Bepul diagnostika — 20 daqiqa
+          Xavfsiz xarid va shaxsiy kabinet
         </span>
         <h1 className="text-2xl font-bold text-foreground">Ro'yxatdan o'tish</h1>
-        <p className="text-brand-700/60 mt-1 text-sm">Bir daqiqa — bolangiz darajasini aniqlaylik</p>
+        <p className="text-brand-700/60 mt-1 text-sm">Materiallarni sotib olish va yuklab olish uchun hisob yarating</p>
       </div>
 
       <div className="bg-white rounded-2xl border border-brand-100 shadow-sm p-8 space-y-5">
@@ -191,7 +195,7 @@ export default function RegisterPage() {
             disabled={loading || !consent || !crossBorderConsent}
             className="w-full bg-cta-600 hover:bg-cta-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-xl transition-colors duration-200 cursor-pointer mt-2"
           >
-            {loading ? 'Ro\'yxatdan o\'tilmoqda...' : 'Bepul diagnostikaga yozilish →'}
+            {loading ? 'Ro\'yxatdan o\'tilmoqda...' : 'Hisob yaratish →'}
           </button>
         </form>
 

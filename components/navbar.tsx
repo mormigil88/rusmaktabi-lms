@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
+import { ENTRY_ARTICLE_PATH } from '@/lib/funnel'
 
 export default async function Navbar() {
   const supabase = await createClient()
@@ -34,11 +35,11 @@ export default async function Navbar() {
                 Kirish
               </Link>
               <Link
-                href="/register"
+                href={ENTRY_ARTICLE_PATH}
                 className="text-xs sm:text-sm bg-cta-600 hover:bg-cta-700 text-white px-3 sm:px-4 py-1.5 rounded-lg transition-colors duration-150 cursor-pointer font-medium whitespace-nowrap"
               >
-                <span className="hidden sm:inline">Bepul diagnostika</span>
-                <span className="sm:hidden">Ro'yxat</span>
+                <span className="hidden sm:inline">Maktabga qabul</span>
+                <span className="sm:hidden">Maqola</span>
               </Link>
             </>
           )}

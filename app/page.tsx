@@ -5,34 +5,33 @@ import Navbar from '@/components/navbar'
 import JsonLd from '@/components/json-ld'
 import { createClient } from '@/lib/supabase/server'
 import { SITE_NAME, SITE_URL } from '@/lib/site'
+import { ENTRY_ARTICLE_PATH, ENTRY_PRODUCT_SLUG } from '@/lib/funnel'
 
-const testimonials = [
+const features = [
   {
-    text: "Qizim 3 haftada Rossiya maktabiga kirishga muvaffaq bo'ldi. O'qituvchi juda professional, darslar qiziqarli.",
-    name: 'Mohira Yusupova',
-    role: 'Toshkent, 2 farzand onasi',
-    result: '3 haftada natija',
+    title: "Maktab dasturiga mos",
+    desc: "Darslar aniq maktab talablari asosida tuzilgan — umumiy kurs emas, maqsadli tayyorgarlik.",
   },
   {
-    text: "Boshqa kurslarda pul sarflab ko'rdik — natija yo'q edi. Bilimorada 4 haftada o'g'lim 5-sinfga qabul qilindi.",
-    name: 'Sardor Mirzayev',
-    role: 'Samarqand, ota',
-    result: '5-sinfga qabul',
+    title: "Individual tezlik",
+    desc: "Har bir bola bilan alohida ishlaymiz. Sinfda emas, o'zingizning bolangiz bilan.",
   },
   {
-    text: "Diagnostika bepul, vaqt yo'qotmasdan hozirda darajasini bildik. Keyin intensiv kursga yozdik — sifati a'lo.",
-    name: 'Nilufar Rahimova',
-    role: "Farg'ona, ona",
-    result: 'Bepul diagnostika',
+    title: "Hujjatlardan boshlaysiz",
+    desc: "Avval qabul hujjatlarini to'g'ri tayyorlaysiz. Materiallardan keyin bolangiz uchun bepul diagnostika olasiz.",
+  },
+  {
+    title: "Onlayn, o'zingizga qulay vaqtda",
+    desc: "Zoom orqali, jadval bo'yicha. Toshkentdan, Samarqanddan yoki Farg'onadan — farqi yo'q.",
   },
 ]
 
 export default async function HomePage() {
   const supabase = await createClient()
-  const { data: intensiv } = await supabase
+  const { data: entryProduct } = await supabase
     .from('courses')
     .select('slug, price_uzs')
-    .eq('slug', 'rus-tili-intensivi')
+    .eq('slug', ENTRY_PRODUCT_SLUG)
     .eq('status', 'published')
     .maybeSingle() as { data: { slug: string; price_uzs: number } | null }
 
@@ -43,7 +42,7 @@ export default async function HomePage() {
     name: SITE_NAME,
     url: SITE_URL,
     description:
-      "O'zbek bolalarini Rossiya maktabiga tayyorlaydigan onlayn maktab — rus tili intensiv kursi va bepul diagnostika.",
+      "O'zbek bolalarini Rossiya maktabiga qabul qilish uchun hujjatlar, rus tili testi va o'qituvchi bilan tayyorgarlik.",
     inLanguage: ['uz', 'ru'],
     areaServed: ['UZ', 'RU'],
   }
@@ -59,29 +58,29 @@ export default async function HomePage() {
           <div>
             <span className="inline-flex items-center gap-1.5 bg-brand-50 text-brand-700 text-xs font-semibold px-3 py-1 rounded-full mb-5">
               <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-              200+ muvaffaqiyatli o'quvchi
+              Maktabga qabul — hujjatlar va til testi
             </span>
             <h1 className="text-4xl sm:text-5xl font-bold text-foreground leading-tight mb-5">
               Bolangizni<br />
               <span className="text-brand-600">Rossiya maktabiga</span><br />
-              4 haftada tayyorlaymiz
+              tayyorlaymiz
             </h1>
             <p className="text-lg text-brand-800/70 mb-8 max-w-md">
-              Professional o'qituvchilar, individual dastur va natija kafolati.
-              Minglab oilalar bizga ishondi.
+              Qabul hujjatlarini tayyorlang, majburiy til testini tushuning
+              va keyin o&apos;qituvchimiz bilan bepul diagnostikadan o&apos;ting.
             </p>
             <div className="flex flex-col sm:flex-row gap-3">
               <Link
-                href="/register"
+                href={ENTRY_ARTICLE_PATH}
                 className="inline-flex items-center justify-center gap-2 bg-cta-600 hover:bg-cta-700 text-white font-semibold px-7 py-3.5 rounded-xl transition-colors duration-200 cursor-pointer"
               >
-                Bepul diagnostika →
+                Qabul tartibini o&apos;qish →
               </Link>
               <Link
-                href="/courses"
+                href={entryProduct ? `/course/${entryProduct.slug}` : '/courses'}
                 className="inline-flex items-center justify-center gap-2 bg-brand-50 hover:bg-brand-100 text-brand-700 font-semibold px-7 py-3.5 rounded-xl transition-colors duration-200 cursor-pointer"
               >
-                Kurslarni ko'rish
+                49k so&apos;mlik materiallar
               </Link>
             </div>
           </div>
@@ -90,10 +89,10 @@ export default async function HomePage() {
           <div className="bg-brand-50 rounded-2xl p-8 border border-brand-100">
             <div className="grid grid-cols-2 gap-6">
               {[
-                { value: '97%', label: 'Maktabga qabul', sub: 'kafolatli natija' },
-                { value: '4 hafta', label: "O'rtacha muddati", sub: 'to\'liq kurs' },
-                { value: '200+', label: 'Muvaffaq oilalar', sub: 'butun O\'zbekiston' },
-                { value: '$200', label: 'To\'liq kurs narxi', sub: 'yoki diagnostika bepul' },
+                { value: '49k', label: 'Hujjatlar to\'plami', sub: "so'm" },
+                { value: '2 til', label: "O'zbekcha + ruscha", sub: 'bitta PDF' },
+                { value: '20 min', label: 'Keyingi diagnostika', sub: "o'qituvchi bilan" },
+                { value: '3 oy', label: "Qayta test muddati", sub: 'oldindan tayyorlaning' },
               ].map(s => (
                 <div key={s.label} className="animate-stat">
                   <div className="text-2xl font-bold text-brand-700">{s.value}</div>
@@ -111,8 +110,8 @@ export default async function HomePage() {
         <div className="max-w-4xl mx-auto px-4 py-12 text-center">
           <h2 className="text-2xl font-bold mb-4">Tanish holat?</h2>
           <p className="text-brand-200 text-lg max-w-2xl mx-auto">
-            Bola Rossiyaga ko'chib o'tmoqchi, lekin maktabga kirishda rus tili to'siq.
-            Oddiy kurslar yetarli emas — kerak maktab dasturiga moslashgan intensiv tayyorgarlik.
+            Bola Rossiya maktabiga qabul qilinmay qolishi mumkin: hujjatlar to&apos;liq emas yoki majburiy rus tili testi topshirilmagan.
+            Birinchi qadam — qabul jarayonini to&apos;g&apos;ri o&apos;tish.
           </p>
         </div>
       </section>
@@ -121,23 +120,28 @@ export default async function HomePage() {
       <section className="bg-white">
         <div className="max-w-4xl mx-auto px-4 py-16">
           <h2 className="text-2xl font-bold text-center text-foreground mb-2">Qanday ishlaydi?</h2>
-          <p className="text-center text-brand-800/60 mb-10">3 oddiy qadam — maktabga kirishgacha</p>
-          <div className="grid sm:grid-cols-3 gap-6">
+          <p className="text-center text-brand-800/60 mb-10">4 qadam — hujjatlardan individual tayyorgarlikkacha</p>
+          <div className="grid sm:grid-cols-4 gap-6">
             {[
               {
                 step: '1',
-                title: 'Bepul diagnostika',
-                desc: 'Zoom orqali 20 daqiqa. Bolangiz darajasini va qaysi sinfga mos kelishini aniqlaymiz.',
+                title: 'Maqola',
+                desc: 'Qabul hujjatlari va majburiy rus tili testi qanday ishlashini bilib oling.',
               },
               {
                 step: '2',
-                title: 'Individual dastur',
-                desc: 'Aniq maktab talablari asosida to\'liq o\'quv rejasi tuziladi. Hech kim ketib qolmaydi.',
+                title: 'Materiallar — 49k',
+                desc: 'Chek-list va tayyor shablonlar bilan hujjatlarni xatosiz tayyorlang.',
               },
               {
                 step: '3',
-                title: 'Natija — maktabga qabul',
-                desc: '4 haftada maktab darajasiga yetkazamiz. Aks holda pul qaytariladi.',
+                title: 'Bepul diagnostika',
+                desc: "O'qituvchimiz Zoom orqali 20 daqiqada bolangiz darajasini tekshiradi.",
+              },
+              {
+                step: '4',
+                title: "Repetitorlik",
+                desc: "Kerak bo'lsa, test va maktab uchun individual tayyorgarlik rejasini boshlaysiz.",
               },
             ].map(item => (
               <div key={item.step} className="bg-brand-50 rounded-2xl p-6 border border-brand-100">
@@ -152,84 +156,50 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Offers */}
+      {/* One entry product — the next service is offered only after purchase. */}
       <section className="bg-white border-t border-brand-100">
-        <div className="max-w-5xl mx-auto px-4 py-16">
-          <h2 className="text-2xl font-bold text-center text-foreground mb-2">Qaysi formatga moslashamiz?</h2>
-          <p className="text-center text-brand-800/60 mb-10">Oilangiz vaqtiga qarab tanlang</p>
-          <div className="grid sm:grid-cols-3 gap-6">
-            <div className="bg-brand-50 rounded-2xl p-6 border border-brand-100 flex flex-col">
-              <h3 className="font-semibold text-foreground mb-1">Intensiv — sentyabrgacha</h3>
-              <p className="text-xs text-brand-600/60 mb-4">4 hafta</p>
-              <p className="text-sm text-brand-800/70 leading-relaxed flex-1 mb-5">
-                Sentyabrga qadar to&apos;liq tayyorgarlik — maktab boshlanishidan oldin natija olish uchun.
-              </p>
-              <div className="font-bold text-foreground mb-4">
-                {intensiv ? `${(intensiv.price_uzs / 1000).toFixed(0)}k so'm` : 'narxi aniqlanmoqda'}
-              </div>
-              <Link
-                href={intensiv ? `/course/${intensiv.slug}` : '/courses'}
-                className="block w-full bg-coral-500 hover:bg-coral-600 text-white font-semibold py-2.5 rounded-xl text-center transition-colors duration-200 cursor-pointer text-sm"
-              >
-                Batafsil →
-              </Link>
+        <div className="max-w-2xl mx-auto px-4 py-16">
+          <h2 className="text-2xl font-bold text-center text-foreground mb-2">Birinchi mahsulot — qabul materiallari</h2>
+          <p className="text-center text-brand-800/60 mb-10">Bitta aniq muammo, bitta aniq keyingi qadam</p>
+          <div className="bg-brand-50 rounded-2xl p-7 border border-brand-100">
+            <h3 className="font-semibold text-foreground mb-2">Chek-list va hujjat shablonlari</h3>
+            <p className="text-sm text-brand-800/70 leading-relaxed mb-5">
+              Rossiya maktabiga qabul uchun hujjatlar ro&apos;yxati, tayyor shablonlar va bosqichma-bosqich yo&apos;riqnoma.
+            </p>
+            <div className="font-bold text-2xl text-foreground mb-5">
+              {entryProduct ? `${(entryProduct.price_uzs / 1000).toFixed(0)}k so'm` : '49k so\'m'}
             </div>
-
-            <div className="bg-brand-50 rounded-2xl p-6 border border-brand-100 flex flex-col">
-              <h3 className="font-semibold text-foreground mb-1">Ekspress</h3>
-              <p className="text-xs text-brand-600/60 mb-4">2 hafta</p>
-              <p className="text-sm text-brand-800/70 leading-relaxed flex-1 mb-5">
-                Shoshilinch tayyorgarlik kerak bo&apos;lganlar uchun — qisqa muddatda kuchaytirilgan dastur.
-              </p>
-              <div className="font-bold text-brand-700/50 mb-4">narxi aniqlanmoqda</div>
-              <Link
-                href="/register"
-                className="block w-full bg-white hover:bg-brand-100 text-brand-700 font-semibold py-2.5 rounded-xl text-center border border-brand-200 transition-colors duration-200 cursor-pointer text-sm"
-              >
-                Qiziqish bildirish →
-              </Link>
-            </div>
-
-            <div className="bg-brand-50 rounded-2xl p-6 border border-brand-100 flex flex-col">
-              <h3 className="font-semibold text-foreground mb-1">Muntazam darslar</h3>
-              <p className="text-xs text-brand-600/60 mb-4">Doimiy format</p>
-              <p className="text-sm text-brand-800/70 leading-relaxed flex-1 mb-5">
-                Keyinroq ko&apos;chib o&apos;tadigan oilalar uchun — shoshilmasdan, izchil tayyorgarlik.
-              </p>
-              <div className="font-bold text-brand-700/50 mb-4">narxi aniqlanmoqda</div>
-              <Link
-                href="/register"
-                className="block w-full bg-white hover:bg-brand-100 text-brand-700 font-semibold py-2.5 rounded-xl text-center border border-brand-200 transition-colors duration-200 cursor-pointer text-sm"
-              >
-                Qiziqish bildirish →
-              </Link>
-            </div>
+            <Link
+              href={entryProduct ? `/course/${entryProduct.slug}` : ENTRY_ARTICLE_PATH}
+              className="block w-full bg-coral-500 hover:bg-coral-600 text-white font-semibold py-3 rounded-xl text-center transition-colors duration-200 cursor-pointer"
+            >
+              Materiallarni olish →
+            </Link>
+            <p className="text-xs text-brand-600/60 text-center mt-4">
+              Xariddan keyin o&apos;qituvchi bilan 20 daqiqalik bepul diagnostikaga yozilishingiz mumkin.
+            </p>
           </div>
         </div>
       </section>
 
-      {/* Testimonials */}
+      {/* Nima uchun biz */}
       <section className="bg-brand-50 border-y border-brand-100">
         <div className="max-w-5xl mx-auto px-4 py-16">
-          <h2 className="text-2xl font-bold text-center text-foreground mb-2">Ota-onalar nima deydi?</h2>
-          <p className="text-center text-brand-800/60 mb-10">Haqiqiy oilalar — haqiqiy natijalar</p>
-          <div className="grid sm:grid-cols-3 gap-6">
-            {testimonials.map(t => (
-              <div key={t.name} className="bg-white rounded-2xl p-6 border border-brand-100 shadow-sm">
-                <div className="flex gap-0.5 mb-3">
-                  {[...Array(5)].map((_, i) => (
-                    <svg key={i} className="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+          <h2 className="text-2xl font-bold text-center text-foreground mb-2">Nima uchun Bilimora?</h2>
+          <p className="text-center text-brand-800/60 mb-10">Kursning asosiy ustuvorliklari</p>
+          <div className="grid sm:grid-cols-2 gap-6">
+            {features.map(f => (
+              <div key={f.title} className="bg-white rounded-2xl p-6 border border-brand-100 shadow-sm">
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 bg-brand-600 text-white rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                     </svg>
-                  ))}
-                </div>
-                <p className="text-sm text-brand-800/80 italic leading-relaxed mb-4">"{t.text}"</p>
-                <div className="border-t border-brand-100 pt-4">
-                  <div className="font-semibold text-foreground text-sm">{t.name}</div>
-                  <div className="text-xs text-brand-600/70">{t.role}</div>
-                  <span className="inline-block mt-2 text-xs bg-brand-100 text-brand-700 px-2 py-0.5 rounded-full font-medium">
-                    {t.result}
-                  </span>
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-foreground mb-1">{f.title}</h3>
+                    <p className="text-sm text-brand-800/70 leading-relaxed">{f.desc}</p>
+                  </div>
                 </div>
               </div>
             ))}
@@ -241,18 +211,18 @@ export default async function HomePage() {
       <section className="bg-brand-700">
         <div className="max-w-2xl mx-auto px-4 py-16 text-center">
           <h2 className="text-2xl font-bold text-white mb-3">
-            Bugun bepul diagnostikaga yoziling
+            Avval qabul jarayonini tushunib oling
           </h2>
           <p className="text-brand-200 mb-8">
-            Joylar cheklangan. 20 daqiqa Zoom — bolangiz darajasini bilib oling, hech qanday majburiyatsiz.
+            Maqolani o&apos;qing, hujjatlar to&apos;plamini oling va keyin bolangizni o&apos;qituvchimiz bilan bepul tekshirtiring.
           </p>
           <Link
-            href="/register"
+            href={ENTRY_ARTICLE_PATH}
             className="inline-flex items-center gap-2 bg-white hover:bg-brand-50 text-brand-700 font-bold px-10 py-4 rounded-xl transition-colors duration-200 text-base cursor-pointer"
           >
-            Bepul diagnostika →
+            Maqolani o&apos;qish →
           </Link>
-          <p className="text-brand-300 text-xs mt-4">Pul to'lovIsiz • Zoom orqali • 20 daqiqa</p>
+          <p className="text-brand-300 text-xs mt-4">Reels → maqola → 49k materiallar → bepul diagnostika</p>
         </div>
       </section>
 

@@ -7,6 +7,7 @@ import JsonLd from '@/components/json-ld'
 import { createClient } from '@/lib/supabase/server'
 import { articles, getArticle } from '@/lib/articles'
 import type { Database } from '@/lib/supabase/types'
+import { ENTRY_PRODUCT_SLUG } from '@/lib/funnel'
 
 type Course = Pick<Database['public']['Tables']['courses']['Row'], 'slug' | 'title' | 'price_uzs'>
 
@@ -81,6 +82,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
   const { data: product } = await supabase
     .from('courses')
     .select('slug, title, price_uzs')
+    .eq('slug', ENTRY_PRODUCT_SLUG)
     .eq('product_type', 'digital_product')
     .eq('status', 'published')
     .limit(1)
@@ -122,39 +124,30 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
 
         <div>{renderBody(article.body)}</div>
 
-        {/* CTA 1 — free diagnostic + start learning */}
+        {/* One primary conversion: article → 49k digital product. */}
         <section className="bg-brand-700 rounded-2xl mt-12 px-6 py-8 text-center">
-          <h2 className="text-xl font-bold text-white mb-2">Bepul diagnostikaga yoziling</h2>
-          <p className="text-brand-200 text-sm mb-6 max-w-md mx-auto">
-            20 daqiqa Zoom orqali bolangiz darajasini bilib oling va tayyorgarlikni hoziroq boshlang.
-          </p>
-          <Link
-            href="/register"
-            className="inline-flex items-center gap-2 bg-white hover:bg-brand-50 text-brand-700 font-bold px-8 py-3.5 rounded-xl transition-colors duration-200 cursor-pointer"
-          >
-            Bepul diagnostika →
-          </Link>
-        </section>
-
-        {/* CTA 2 — digital product */}
-        <section className="bg-white border border-brand-100 rounded-2xl mt-6 px-6 py-6">
           {product ? (
             <>
-              <h2 className="text-base font-bold text-foreground mb-1">{product.title}</h2>
-              <p className="text-sm text-brand-700/60 mb-4">
-                {(product.price_uzs / 1000).toFixed(0)}k so&apos;m — hujjatlar chek-listi va tayyor shablonlar
+              <h2 className="text-xl font-bold text-white mb-2">
+                {article.locale === 'ru' ? 'Проверьте документы до подачи в школу' : "Hujjatlarni maktabga topshirishdan oldin tekshiring"}
+              </h2>
+              <p className="text-brand-200 text-sm mb-2 max-w-md mx-auto">
+                {product.title}
+              </p>
+              <p className="text-white font-bold text-lg mb-6">
+                {(product.price_uzs / 1000).toFixed(0)}k so&apos;m
               </p>
               <Link
                 href={`/course/${product.slug}`}
-                className="inline-block bg-coral-500 hover:bg-coral-600 text-white font-semibold px-6 py-2.5 rounded-xl transition-colors duration-200 cursor-pointer text-sm"
+                className="inline-flex items-center gap-2 bg-coral-500 hover:bg-coral-600 text-white font-bold px-8 py-3.5 rounded-xl transition-colors duration-200 cursor-pointer"
               >
-                Batafsil →
+                {article.locale === 'ru' ? 'Получить материалы →' : 'Materiallarni olish →'}
               </Link>
             </>
           ) : (
             <>
-              <h2 className="text-base font-bold text-foreground mb-1">Chek-list va hujjat shablonlari</h2>
-              <p className="text-sm text-brand-700/60">Maktabga qabul uchun hujjatlar to&apos;plami tez orada e&apos;lon qilinadi.</p>
+              <h2 className="text-xl font-bold text-white mb-2">Chek-list va hujjat shablonlari</h2>
+              <p className="text-sm text-brand-200">Maktabga qabul uchun hujjatlar to&apos;plami tez orada e&apos;lon qilinadi.</p>
             </>
           )}
         </section>

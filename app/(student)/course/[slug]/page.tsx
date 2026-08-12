@@ -7,6 +7,7 @@ import AnalyticsViewContent from '@/components/analytics-view-content'
 import { SITE_NAME, SITE_URL } from '@/lib/site'
 import type { Metadata } from 'next'
 import type { Database } from '@/lib/supabase/types'
+import { DIAGNOSTIC_FORM_URL } from '@/lib/funnel'
 
 type Course = Database['public']['Tables']['courses']['Row']
 type LessonPreview = Pick<Database['public']['Tables']['lessons']['Row'], 'id' | 'title' | 'duration_min' | 'order' | 'is_free' | 'video_url'>
@@ -134,7 +135,7 @@ export default async function CoursePage({ params }: { params: Promise<{ slug: s
             )}
           </div>
           <Link
-            href={user ? `/course/${slug}/checkout` : '/register'}
+            href={user ? `/course/${slug}/checkout` : `/register?next=${encodeURIComponent(`/course/${slug}/checkout`)}`}
             className="bg-coral-500 hover:bg-coral-600 text-white font-semibold px-5 py-2.5 rounded-xl transition-colors duration-200 cursor-pointer text-sm"
           >
             {user ? 'Sotib olish →' : "Ro'yxat →"}
@@ -281,6 +282,20 @@ export default async function CoursePage({ params }: { params: Promise<{ slug: s
                   <>
                     <p className="text-sm text-brand-700/60 mb-5">Xarid qilindi. Faylni yuklab oling:</p>
                     <DownloadButton slug={slug} ready={course.file_path != null} />
+                    <div className="mt-5 pt-5 border-t border-brand-100">
+                      <h2 className="text-sm font-bold text-foreground mb-1">Keyingi qadam — bepul diagnostika</h2>
+                      <p className="text-xs text-brand-700/60 mb-3">
+                        O&apos;qituvchimiz 20 daqiqada bolangizning rus tili darajasini tekshiradi va tayyorgarlik rejasini tavsiya qiladi.
+                      </p>
+                      <a
+                        href={DIAGNOSTIC_FORM_URL}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="block w-full bg-coral-500 hover:bg-coral-600 text-white font-semibold py-3 rounded-xl text-center transition-colors duration-200 cursor-pointer"
+                      >
+                        Bepul diagnostikaga yozilish →
+                      </a>
+                    </div>
                   </>
                 ) : (
                   <>
@@ -319,7 +334,6 @@ export default async function CoursePage({ params }: { params: Promise<{ slug: s
                   ] : [
                     '4 haftalik intensiv',
                     'Individual dastur',
-                    'Natija kafolati',
                     'Umrbod kirish imkoniyati',
                   ]).map(f => (
                     <div key={f} className="flex items-center gap-2">
@@ -332,7 +346,7 @@ export default async function CoursePage({ params }: { params: Promise<{ slug: s
                 </div>
 
                 <Link
-                  href={user ? `/course/${slug}/checkout` : '/register'}
+                  href={user ? `/course/${slug}/checkout` : `/register?next=${encodeURIComponent(`/course/${slug}/checkout`)}`}
                   className="block w-full bg-coral-500 hover:bg-coral-600 text-white font-semibold py-3 rounded-xl text-center transition-colors duration-200 cursor-pointer mb-3"
                 >
                   {user ? 'Sotib olish →' : "Ro'yxatdan o'tish →"}
@@ -348,7 +362,7 @@ export default async function CoursePage({ params }: { params: Promise<{ slug: s
                 )}
 
                 <p className="text-center text-xs text-brand-600/40 mt-4">
-                  Pul kafolati — 7 kun ichida
+                  Qaytarish — 14 kun ichida (kurs boshlanmagan bo&apos;lsa)
                 </p>
               </>
             )}
