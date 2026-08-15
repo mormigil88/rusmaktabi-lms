@@ -5,24 +5,26 @@ import { createServiceClient } from '@/lib/supabase/service'
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL!
 
-// ─── Payme ───────────────────────────────────────────────────────────────────
+// ─── Click (Узбекистан, UZS) ────────────────────────────────────────────────
 
-interface PaymeInput {
+interface ClickInput {
   courseId: string
   courseSlug: string
   courseTitle: string
   priceUzs: number
 }
 
-export async function initiatePayme(input: PaymeInput) {
+export async function initiateClick(input: ClickInput) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: 'Not authenticated' }
 
-  const MERCHANT_ID = process.env.PAYME_MERCHANT_ID
-  if (!MERCHANT_ID) return { error: 'Payme not configured' }
+  const SERVICE_ID = process.env.CLICK_SERVICE_ID
+  const MERCHANT_ID = process.env.CLICK_MERCHANT_ID
+  // SECRET_KEY нужен только для webhook-проверки, не для URL
+  if (!SERVICE_ID || !MERCHANT_ID) return { error: 'Click not configured' }
 
-  // Create pending payment in DB
+  // 1. Создаём pending payment в БД — merchant_trans_id для Click
   const service = createServiceClient()
   const { data: payment, error } = await service
     .from('payments')
@@ -31,7 +33,7 @@ export async function initiatePayme(input: PaymeInput) {
       course_id: input.courseId,
       amount: input.priceUzs,
       currency: 'UZS',
-      provider: 'payme',
+      provider: 'click',
       status: 'pending',
     } as never)
     .select('id')
@@ -39,12 +41,19 @@ export async function initiatePayme(input: PaymeInput) {
 
   if (error || !payment) return { error: 'Failed to create payment' }
 
-  // Payme checkout URL: amount in tiyin (1 sum = 100 tiyin)
-  const amountTiyin = input.priceUzs * 100
-  const params = `m=${MERCHANT_ID};ac.payment_id=${payment.id};a=${amountTiyin};c=${APP_URL}/course/${input.courseSlug}/success`
-  const encoded = Buffer.from(params).toString('base64')
-  const url = `https://checkout.paycom.uz/${encoded}`
+  // 2. Редирект на Click — sign_string НЕ нужен (простой GET без подписи).
+  //    Подпись проверяется только в webhook (Prepare/Complete).
+  //    Параметр называется transaction_param (не transaction_id) — источник:
+  //    github.com/Iqbolshoh/php-click-payment (index.php).
+  const qs = new URLSearchParams({
+    service_id: SERVICE_ID,
+    merchant_id: MERCHANT_ID,
+    amount: String(input.priceUzs),
+    transaction_param: payment.id,
+    return_url: `${APP_URL}/course/${input.courseSlug}/success`,
+  })
 
+  const url = `https://my.click.uz/services/pay?${qs.toString()}`
   return { url }
 }
 
