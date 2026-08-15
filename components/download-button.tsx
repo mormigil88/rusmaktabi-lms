@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { trackCustom } from '@/lib/analytics'
 
 type DownloadState = 'idle' | 'loading' | 'error'
 
@@ -47,6 +48,7 @@ export default function DownloadButton({ slug, ready }: Props) {
         return
       }
       const { url } = await res.json()
+      trackCustom('pdf_download', { product_slug: slug })
       window.location.href = url
     } catch {
       setErrorMsg('Tarmoq xatosi')

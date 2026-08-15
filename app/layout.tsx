@@ -6,6 +6,7 @@ import Footer from "@/components/footer";
 import CookieBanner from "@/components/cookie-banner";
 import MetaPixel from "@/components/meta-pixel";
 import YandexMetrica from "@/components/yandex-metrica";
+import AnalyticsPageTracker from "@/components/analytics-page-tracker";
 import "./globals.css";
 
 const lexend = Lexend({
@@ -61,6 +62,7 @@ export default function RootLayout({
         </div>
         <Footer />
         <CookieBanner />
+        <AnalyticsPageTracker />
 
         {/* Yandex.Metrica — only loads when the user has granted "all" cookie consent
             (see components/yandex-metrica.tsx). Default state = no script loaded. */}
@@ -79,7 +81,7 @@ export default function RootLayout({
                 wait_for_update: 500,
               });
               gtag('js', new Date());
-              gtag('config', '${GA_ID}');
+              gtag('config', '${GA_ID}', { send_page_view: false });
             `}</Script>
           </>
         )}

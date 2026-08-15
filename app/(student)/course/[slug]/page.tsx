@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import JsonLd from '@/components/json-ld'
 import DownloadButton from '@/components/download-button'
 import AnalyticsViewContent from '@/components/analytics-view-content'
+import TrackedLink from '@/components/tracked-link'
 import { SITE_NAME, SITE_URL } from '@/lib/site'
 import type { Metadata } from 'next'
 import type { Database } from '@/lib/supabase/types'
@@ -287,14 +288,16 @@ export default async function CoursePage({ params }: { params: Promise<{ slug: s
                       <p className="text-xs text-brand-700/60 mb-3">
                         O&apos;qituvchimiz 20 daqiqada bolangizning rus tili darajasini tekshiradi va tayyorgarlik rejasini tavsiya qiladi.
                       </p>
-                      <a
+                      <TrackedLink
                         href={DIAGNOSTIC_FORM_URL}
+                        eventName="diagnostic_click"
+                        eventParams={{ source: 'purchased_product', product_slug: slug }}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="block w-full bg-coral-500 hover:bg-coral-600 text-white font-semibold py-3 rounded-xl text-center transition-colors duration-200 cursor-pointer"
                       >
                         Bepul diagnostikaga yozilish →
-                      </a>
+                      </TrackedLink>
                     </div>
                   </>
                 ) : (

@@ -5,12 +5,13 @@ import type { Database } from '@/lib/supabase/types'
 import type { Metadata } from 'next'
 import { NOINDEX } from '@/lib/site'
 import AnalyticsPurchase from '@/components/analytics-purchase'
+import TrackedLink from '@/components/tracked-link'
 import { DIAGNOSTIC_FORM_URL } from '@/lib/funnel'
 
 export const metadata: Metadata = NOINDEX
 
 type Course = Database['public']['Tables']['courses']['Row']
-type Payment = Pick<Database['public']['Tables']['payments']['Row'], 'amount' | 'currency' | 'status'>
+type Payment = Pick<Database['public']['Tables']['payments']['Row'], 'id' | 'amount' | 'currency' | 'status'>
 
 export default async function SuccessPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
@@ -28,6 +29,7 @@ export default async function SuccessPage({ params }: { params: Promise<{ slug: 
   // Only fire Purchase when an active enrollment + paid payment exist for this user.
   // Without this guard, anyone who opens /success manually would inflate Pixel events.
   let purchaseValue = 0
+  let transactionId = ''
   let purchaseCurrency: 'UZS' | 'RUB' = 'UZS'
   if (user) {
     const { data: enrollment } = await supabase
@@ -46,7 +48,7 @@ export default async function SuccessPage({ params }: { params: Promise<{ slug: 
 
     const { data: payment } = await supabase
       .from('payments')
-      .select('amount, currency, status')
+      .select('id, amount, currency, status')
       .eq('user_id', user.id)
       .eq('course_id', course.id)
       .eq('status', 'paid')
@@ -55,6 +57,7 @@ export default async function SuccessPage({ params }: { params: Promise<{ slug: 
       .maybeSingle() as { data: Payment | null }
 
     if (payment) {
+      transactionId = payment.id
       purchaseValue = payment.amount
       purchaseCurrency = (payment.currency as 'UZS' | 'RUB') ?? 'UZS'
     }
@@ -81,8 +84,9 @@ export default async function SuccessPage({ params }: { params: Promise<{ slug: 
 
   return (
     <div className="max-w-lg mx-auto px-4 py-16 text-center">
-      {purchaseValue > 0 && (
+      {purchaseValue > 0 && transactionId && (
         <AnalyticsPurchase
+          transactionId={transactionId}
           contentName={course.title}
           contentIds={[course.id]}
           value={purchaseValue}
@@ -126,14 +130,16 @@ export default async function SuccessPage({ params }: { params: Promise<{ slug: 
         )}
 
         {course.product_type === 'digital_product' && (
-          <a
+          <TrackedLink
             href={DIAGNOSTIC_FORM_URL}
+            eventName="diagnostic_click"
+            eventParams={{ source: 'purchase_success', product_slug: slug }}
             target="_blank"
             rel="noopener noreferrer"
             className="block w-full bg-coral-500 hover:bg-coral-600 text-white font-bold py-4 rounded-2xl transition-colors duration-200 cursor-pointer"
           >
             O&apos;qituvchi bilan bepul diagnostika →
-          </a>
+          </TrackedLink>
         )}
 
         <Link

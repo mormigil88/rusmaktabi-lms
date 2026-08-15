@@ -8,13 +8,31 @@ export const RESET_COOKIE_EVENT = 'bilimora:reset-cookie-consent'
 
 type ConsentValue = 'all' | 'essential' | null
 
+function updateConsent(value: Exclude<ConsentValue, null>) {
+  if (typeof window === 'undefined') return
+  window.gtag?.('consent', 'update', {
+    analytics_storage: value === 'all' ? 'granted' : 'denied',
+    ad_storage: value === 'all' ? 'granted' : 'denied',
+  })
+  window.dispatchEvent(new StorageEvent('storage', { key: COOKIE_CONSENT_KEY }))
+}
+
 export default function CookieBanner() {
   const [visible, setVisible] = useState(false)
   const [showSettings, setShowSettings] = useState(false)
 
   useEffect(() => {
     const stored = localStorage.getItem(COOKIE_CONSENT_KEY)
-    if (!stored) setVisible(true)
+    if (!stored) {
+      setVisible(true)
+    } else {
+      try {
+        const parsed = JSON.parse(stored) as { value?: ConsentValue }
+        if (parsed.value) updateConsent(parsed.value)
+      } catch {
+        setVisible(true)
+      }
+    }
 
     // Listen for global reset event (e.g. from footer "Cookie sozlamalari")
     function onReset() {
@@ -36,16 +54,7 @@ export default function CookieBanner() {
     setShowSettings(false)
     // Update gtag consent state — covers GA4 + Yandex.Metrica (both use the same
     // consent API since we tag them with the same gtag config).
-    if (typeof window !== 'undefined') {
-      // @ts-expect-error - gtag is loaded externally
-      window.gtag?.('consent', 'update', {
-        analytics_storage: value === 'all' ? 'granted' : 'denied',
-        ad_storage: value === 'all' ? 'granted' : 'denied',
-      })
-      // Meta Pixel reacts via the custom storage event in components/meta-pixel.tsx.
-      // Dispatch a synthetic event so the Pixel init logic can re-run.
-      window.dispatchEvent(new StorageEvent('storage', { key: COOKIE_CONSENT_KEY }))
-    }
+    updateConsent(value)
   }
 
   if (!visible) return null

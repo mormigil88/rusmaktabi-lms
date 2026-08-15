@@ -4,6 +4,8 @@ import type { Metadata } from 'next'
 import type { ReactNode } from 'react'
 import Navbar from '@/components/navbar'
 import JsonLd from '@/components/json-ld'
+import AnalyticsViewContent from '@/components/analytics-view-content'
+import TrackedLink from '@/components/tracked-link'
 import { createClient } from '@/lib/supabase/server'
 import { articles, getArticle } from '@/lib/articles'
 import type { Database } from '@/lib/supabase/types'
@@ -103,6 +105,10 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
     <>
       <Navbar />
       <JsonLd data={jsonLd} />
+      <AnalyticsViewContent
+        contentName={article.title}
+        contentCategory="article"
+      />
 
       <article className="max-w-2xl mx-auto px-4 py-10 sm:py-12">
         {article.isDraft && (
@@ -137,12 +143,19 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
               <p className="text-white font-bold text-lg mb-6">
                 {(product.price_uzs / 1000).toFixed(0)}k so&apos;m
               </p>
-              <Link
+              <TrackedLink
                 href={`/course/${product.slug}`}
+                eventName="article_cta_click"
+                eventParams={{
+                  article_slug: article.slug,
+                  product_slug: product.slug,
+                  value: product.price_uzs,
+                  currency: 'UZS',
+                }}
                 className="inline-flex items-center gap-2 bg-coral-500 hover:bg-coral-600 text-white font-bold px-8 py-3.5 rounded-xl transition-colors duration-200 cursor-pointer"
               >
                 {article.locale === 'ru' ? 'Получить материалы →' : 'Materiallarni olish →'}
-              </Link>
+              </TrackedLink>
             </>
           ) : (
             <>
