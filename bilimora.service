@@ -1,0 +1,45 @@
+# Bilimora — systemd unit для Next.js standalone
+# Положить в /etc/systemd/system/bilimora.service
+# Активация:
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable --now bilimora
+#   sudo systemctl status bilimora
+# Логи:
+#   sudo journalctl -u bilimora -f
+
+[Unit]
+Description=Bilimora Next.js standalone (UZ-VPS production)
+Documentation=https://bilimora.uz
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=bilimora
+Group=bilimora
+WorkingDirectory=/opt/bilimora
+EnvironmentFile=/opt/bilimora/.env
+ExecStart=/usr/bin/node /opt/bilimora/server.js
+Restart=always
+RestartSec=5
+StartLimitBurst=5
+StartLimitIntervalSec=60s
+
+# Логи в journald
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=bilimora
+
+# Безопасность
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/bilimora
+
+# Лимиты
+LimitNOFILE=65536
+LimitNPROC=4096
+
+[Install]
+WantedBy=multi-user.target
