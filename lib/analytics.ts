@@ -139,8 +139,9 @@ export function trackCustom(event: string, params?: Record<string, unknown>): vo
   fn?.('trackCustom', event, enriched)
 }
 
-export function trackPageView(): void {
+export function trackPageView(options: { google?: boolean; yandex?: boolean } = {}): void {
   if (typeof window === 'undefined' || !hasMarketingConsent()) return
+  const { google = true, yandex = true } = options
   const attribution = captureAttribution()
   const page = {
     page_location: window.location.href,
@@ -148,11 +149,13 @@ export function trackPageView(): void {
     page_title: document.title,
     ...attribution,
   }
-  window.gtag?.('event', 'page_view', page)
-  window.ym?.(YM_ID, 'hit', window.location.href, {
-    title: document.title,
-    params: attribution,
-  })
+  if (google) window.gtag?.('event', 'page_view', page)
+  if (yandex) {
+    window.ym?.(YM_ID, 'hit', window.location.href, {
+      title: document.title,
+      params: attribution,
+    })
+  }
   fbq()?.('track', 'PageView', attribution)
 }
 
